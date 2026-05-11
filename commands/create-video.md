@@ -16,6 +16,29 @@ Before starting, verify:
 2. MCP servers are available — check with `/mcp` if unsure
 3. If anything is missing, suggest running `/setup`
 
+### Config Check
+
+Read `config.yaml` to determine which providers to use for each phase:
+
+```bash
+cat config.yaml 2>/dev/null
+```
+
+Identify the configured providers:
+- **TTS provider:** [from config — e.g. edge-tts, elevenlabs]
+- **Music provider:** [from config — e.g. musicgen, suno]
+- **Image provider:** [from config — e.g. pixazo, replicate, kie]
+- **Video provider:** [from config — e.g. google-ai-studio, replicate, kie]
+- **Subtitle provider:** [from config — e.g. faster-whisper, kie]
+- **SFX provider:** [from config — e.g. freesound, elevenlabs]
+
+If `config.yaml` doesn't exist, tell the user:
+> "No model configuration found. Would you like to run `/select-models` to choose your providers (controls cost and quality), or proceed with free defaults?"
+
+**Free defaults:** edge-tts, musicgen, pixazo, google-ai-studio, faster-whisper, freesound.
+
+See the `model-providers` rule for detailed usage of each provider.
+
 ## Pipeline
 
 ### Phase 1: Concept Breakdown
@@ -23,11 +46,12 @@ Before starting, verify:
 Ask the user to describe their video (or use their existing description). Then break it down:
 
 ```
-📋 Video Production Plan
+Video Production Plan
 
 Duration: [X seconds]
 Aspect Ratio: [16:9 / 9:16 / 1:1]
 Style: [describe visual style]
+Providers: [preset name or "custom"]
 
 Scenes:
 1. [0:00-0:05] Intro — [description]
@@ -36,13 +60,14 @@ Scenes:
 4. [0:25-0:30] Outro/CTA — [description]
 
 Audio Plan:
-- Voiceover: [yes/no] — [voice style]
-- Music: [genre/mood description]
-- Sound Effects: [list any needed SFX]
+- Voiceover: [yes/no] — [voice style] (via [TTS provider])
+- Music: [genre/mood description] (via [music provider])
+- Sound Effects: [list any needed SFX] (via [SFX provider])
 
 Visual Assets Needed:
-- Stock footage: [list queries]
-- Generated images: [list descriptions]
+- Stock footage: [list queries] (via Pexels)
+- Generated images: [list descriptions] (via [image provider])
+- Generated clips: [list descriptions] (via [video provider])
 - Existing footage: [list files to analyze]
 ```
 
@@ -53,16 +78,55 @@ Visual Assets Needed:
 Do this FIRST — audio determines timing.
 
 #### 2a. Voiceover (if needed)
-Write the narration script, then generate:
+
+Write the narration script, then generate using the configured TTS provider.
+
+**edge-tts:**
+```bash
+edge-tts --text "[full narration script]" --voice "[voice]" --write-media public/audio/voiceover.mp3
+ffprobe -v error -show_entries format=duration -of csv=p=0 public/audio/voiceover.mp3
+```
+
+**kokoro:**
+```bash
+python3 -c "
+from kokoro import KPipeline
+import soundfile as sf
+pipeline = KPipeline(lang_code='a')
+audio, sr = pipeline('[script]', voice='[voice]')
+sf.write('public/audio/voiceover.wav', audio, sr)
+print(f'Duration: {len(audio)/sr:.2f}s')
+"
+```
+
+**elevenlabs (KIE):**
 ```
 Use remotion-media generate_tts:
 - text: [full narration script]
 - voice: [chosen voice name]
 - project_path: [project root path]
 ```
+
 **Record the returned duration — this sets the video length.**
 
 #### 2b. Background Music
+
+Generate using the configured music provider.
+
+**musicgen:**
+```bash
+python3 << 'PYEOF'
+from transformers import AutoProcessor, MusicgenForConditionalGeneration
+import scipy.io.wavfile
+processor = AutoProcessor.from_pretrained("facebook/musicgen-small")
+model = MusicgenForConditionalGeneration.from_pretrained("facebook/musicgen-small")
+inputs = processor(text=["[music description, no vocals]"], padding=True, return_tensors="pt")
+audio = model.generate(**inputs, max_new_tokens=1536)
+scipy.io.wavfile.write("public/audio/music.wav", model.config.audio_encoder.sampling_rate, audio[0,0].cpu().numpy())
+PYEOF
+```
+
+**suno (KIE):**
 ```
 Use remotion-media generate_music:
 - prompt: [music description, always include "no vocals"]
@@ -70,7 +134,16 @@ Use remotion-media generate_music:
 ```
 
 #### 2c. Sound Effects (if needed)
-For each SFX:
+
+Generate using the configured SFX provider.
+
+**freesound:**
+Search https://freesound.org for matching effects and download to `public/audio/sfx/`:
+```bash
+curl -o public/audio/sfx/[effect-name].mp3 "[freesound_preview_url]"
+```
+
+**elevenlabs (KIE):**
 ```
 Use remotion-media generate_sfx:
 - text: [sound description]
@@ -100,11 +173,12 @@ Use TwelveLabs to:
 ```
 
 #### 3c. Generate Images (if needed)
-```
-Use remotion-media generate_image:
-- prompt: [image description]
-- project_path: [project root path]
-```
+
+Use the configured image provider. See `/generate-image` command for provider-specific workflows.
+
+#### 3d. Generate Video Clips (if needed)
+
+Use the configured video provider. See `/generate-clip` command for provider-specific workflows.
 
 ### Phase 4: Build the Remotion Composition
 

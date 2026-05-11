@@ -1,0 +1,73 @@
+# Remotion Superpowers — Model Configuration
+# Run /select-models to change these settings interactively
+# Or edit this file directly
+
+preset: free  # free | budget | premium | custom
+
+models:
+  tts:
+    provider: edge-tts          # edge-tts | kokoro | coqui-xtts | elevenlabs (KIE) | elevenlabs-direct
+    voice: ko-KR-SunHiNeural    # provider-specific voice name
+    # For edge-tts: ko-KR-SunHiNeural, ko-KR-InJoonNeural, en-US-AriaNeural, en-US-GuyNeural, en-GB-SoniaNeural
+    # For kokoro: af_heart, af_bella, am_adam, am_michael (English only)
+    # For coqui-xtts: any reference audio file for voice cloning
+    # For elevenlabs: Eric, Rachel, Aria, Roger, Sarah, Laura, Charlie
+
+  music:
+    provider: musicgen           # musicgen | ace-step | suno (KIE)
+    model: facebook/musicgen-small  # musicgen-small | musicgen-medium | musicgen-large
+    # For musicgen: uses Meta's MusicGen via local Python or HuggingFace API
+    # For ace-step: local REST API on localhost:8001 (requires GPU)
+    # For suno: uses KIE API (paid, highest quality)
+
+  image:
+    provider: pixazo             # pixazo | flux-local | replicate | kie
+    model: flux-schnell          # model variant (provider-specific)
+    # For pixazo: free cloud API (no key needed for basic use)
+    # For flux-local: requires local GPU + ComfyUI running
+    # For replicate: uses REPLICATE_API_TOKEN (paid per use)
+    # For kie: uses KIE_API_KEY (paid)
+
+  video:
+    provider: google-ai-studio   # google-ai-studio | cogvideo-local | replicate | kie
+    model: veo-3.1               # model variant (provider-specific)
+    # For google-ai-studio: free Veo via AI Studio (rate limited)
+    # For cogvideo-local: requires local GPU with 16GB+ VRAM
+    # For replicate: Wan 2.5, Kling 2.6 (paid per generation)
+    # For kie: Veo 3.1 (paid, highest quality)
+
+  subtitle:
+    provider: faster-whisper     # faster-whisper | whisper-local | kie
+    model: large-v3-turbo        # tiny | base | small | medium | large-v3 | large-v3-turbo
+    device: cpu                  # cpu | cuda (GPU acceleration)
+    # For faster-whisper: pip install faster-whisper (local, free, fast)
+    # For whisper-local: @remotion/install-whisper-cpp (local, free, integrated)
+    # For kie: cloud Whisper API (paid, no local install needed)
+
+  sfx:
+    provider: freesound          # freesound | elevenlabs (KIE) | elevenlabs-direct
+    # For freesound: free sound effects library (search + download)
+    # For elevenlabs (KIE): SFX generation via KIE API (paid, custom generation)
+    # For elevenlabs-direct: uses ELEVENLABS_API_KEY directly
+
+# ── Preset Definitions ──────────────────────────────────────────
+# These are applied when you run /select-models and choose a preset.
+# You can also set preset: custom and configure each provider individually.
+#
+# free:
+#   tts: edge-tts, music: musicgen, image: pixazo,
+#   video: google-ai-studio, subtitle: faster-whisper, sfx: freesound
+#   API keys needed: GOOGLE_AI_STUDIO_KEY (free), PEXELS_API_KEY (free)
+#   pip install: edge-tts faster-whisper transformers scipy soundfile
+#
+# budget:
+#   tts: edge-tts, music: musicgen, image: replicate,
+#   video: replicate, subtitle: faster-whisper, sfx: freesound
+#   API keys needed: REPLICATE_API_TOKEN, PEXELS_API_KEY (free)
+#   pip install: edge-tts faster-whisper transformers scipy soundfile
+#
+# premium:
+#   tts: elevenlabs (KIE), music: suno (KIE), image: kie,
+#   video: kie, subtitle: kie, sfx: elevenlabs (KIE)
+#   API keys needed: KIE_API_KEY, PEXELS_API_KEY (free)
+#   pip install: (none required)

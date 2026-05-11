@@ -7,13 +7,50 @@ description: Full video production workflow for Remotion projects. Teaches how t
 
 This skill teaches how to produce complete videos with Remotion by orchestrating multiple MCP tools together. It covers the full pipeline from concept to rendered MP4.
 
+## Model Provider System
+
+Remotion Superpowers supports multiple AI providers for each media generation function. Users can choose between free local models and paid cloud APIs to control costs.
+
+### How It Works
+
+1. **`config.yaml`** in the project root stores the user's provider choices
+2. Each command reads `config.yaml` to determine which provider to use
+3. The `model-providers` rule contains detailed setup and usage for every provider
+4. Users run `/select-models` to interactively configure providers, or edit `config.yaml` directly
+
+### Available Presets
+
+| Preset | Cost | Best For |
+|---|---|---|
+| free | $0 | Learning, prototyping, personal projects |
+| budget | ~$0.05-0.50/video | Small teams, occasional production |
+| premium | KIE plan pricing | Professional production, best quality |
+| custom | Varies | Mix-and-match per function |
+
+### Provider Overview by Function
+
+| Function | Free Options | Paid Options |
+|---|---|---|
+| TTS | edge-tts, kokoro, coqui-xtts | elevenlabs (KIE), elevenlabs-direct |
+| Music | musicgen, ace-step | suno (KIE) |
+| Image | pixazo, flux-local | replicate, kie |
+| Video | google-ai-studio, cogvideo-local | replicate, kie |
+| Subtitle | faster-whisper, whisper-local | kie |
+| SFX | freesound | elevenlabs (KIE), elevenlabs-direct |
+
+Read `rules/model-providers.md` for full setup instructions, code examples, and quality comparisons for every provider.
+
+### Adding New Providers
+
+To add a new provider: update `rules/model-providers.md`, add the provider option to relevant command files, update `commands/select-models.md`, and add comments to `config.yaml`.
+
 ## Available MCP Tools
 
-You have access to these MCP servers for media production:
+You have access to these MCP servers for media production (used by paid/cloud providers):
 
 ### remotion-media (via KIE)
 - `generate_tts` — Text-to-speech voiceovers (ElevenLabs TTS)
-- `generate_music` — Background music (Suno V3.5–V5)
+- `generate_music` — Background music (Suno V3.5-V5)
 - `generate_sfx` — Sound effects (ElevenLabs SFX V2)
 - `generate_image` — AI images (Nano Banana Pro)
 - `generate_video` — AI video clips (Veo 3.1)
@@ -67,6 +104,7 @@ Read individual rule files for detailed workflows:
 - `rules/sound-effects.md` — SFX generation, prompt engineering, timing to visual events
 - `rules/elevenlabs-advanced.md` — Voice cloning, custom TTS parameters, multi-voice scripts
 - `rules/asset-management.md` — File organization, naming conventions, staticFile() reference
+- `rules/model-providers.md` — All supported providers, setup instructions, usage examples, cost/quality comparison
 
 ## Key Principles
 

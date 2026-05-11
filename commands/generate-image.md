@@ -1,11 +1,13 @@
 ---
 name: generate-image
-description: Generate AI images for your Remotion project. Describe what you need — backgrounds, thumbnails, characters, abstract art — and get production-ready images via AI generation or Replicate models.
+description: Generate AI images for your Remotion project. Describe what you need — backgrounds, thumbnails, characters, abstract art — and get production-ready images via your configured provider (free or paid).
 ---
 
 # Generate Image — AI Image Creation
 
 You are helping the user generate custom images for their Remotion video project.
+
+**Load the `remotion-production` skill** for the `image-generation` and `model-providers` rules.
 
 ## Workflow
 
@@ -17,7 +19,17 @@ Ask the user (if not already clear):
 - **Dimensions** — Landscape (1920x1080), portrait (1080x1920), square (1080x1080)?
 - **Mood/Colors** — Bright, dark, warm, cool, neon, pastel?
 
-### 2. Craft the Prompt
+### 2. Check Provider Configuration
+
+Read `config.yaml` to determine the image provider:
+
+```bash
+cat config.yaml 2>/dev/null
+```
+
+If no `config.yaml` exists, ask the user: "Would you like to run `/select-models` to choose your image provider, or use the default (pixazo, free)?"
+
+### 3. Craft the Prompt
 
 Write a detailed image generation prompt. Good prompts include:
 - Subject description
@@ -33,19 +45,47 @@ Write a detailed image generation prompt. Good prompts include:
 - "Friendly robot mascot waving, cartoon illustration style, pastel colors, clean white background, suitable for logo"
 - "Golden hour cityscape, drone aerial shot, warm orange and pink sky, downtown skyline silhouette, cinematic"
 
-### 3. Generate via remotion-media
+### 4. Generate Image
 
+Use the configured provider.
+
+#### pixazo provider (FREE):
+
+```bash
+curl -s -X POST "https://api.pixazo.com/v1/generate" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "prompt": "[crafted prompt]",
+    "model": "flux-schnell",
+    "width": 1920,
+    "height": 1080,
+    "num_inference_steps": 4
+  }' | python3 -c "
+import sys, json, base64
+data = json.load(sys.stdin)
+img_data = base64.b64decode(data['images'][0])
+with open('public/images/[descriptive-name].png', 'wb') as f:
+    f.write(img_data)
+print('Image saved to public/images/[descriptive-name].png')
+"
 ```
-Use remotion-media generate_image:
-- prompt: [crafted prompt]
-- project_path: [project root path]
+
+**Models available:**
+- `flux-schnell` — Fast, 4 steps, good quality (default)
+- `flux-dev` — Slower, 20 steps, better quality
+
+#### flux-local provider (FREE, requires ComfyUI):
+
+Requires ComfyUI running locally on port 8188. Use the ComfyUI API to queue a generation workflow:
+
+```bash
+# Verify ComfyUI is running
+curl -s http://127.0.0.1:8188/system_stats > /dev/null && echo "ComfyUI: running" || echo "ComfyUI: not running — start with: cd /path/to/ComfyUI && python main.py"
 ```
 
-The image is saved to the project's `public/` directory.
+Then queue a FLUX generation workflow via the ComfyUI API. See the `model-providers` rule for the full API pattern.
 
-### 4. Generate via Replicate MCP (if available)
-
-If the user has `REPLICATE_API_TOKEN` set and wants more model options, use the Replicate MCP tools:
+#### replicate provider (PAID):
 
 ```
 # FLUX for high-quality images
@@ -69,6 +109,16 @@ Available Replicate models:
 - **FLUX Kontext** (`black-forest-labs/flux-kontext-pro`) — Style control, multi-reference
 
 See `skills/remotion-production/rules/replicate-models.md` and `rules/image-generation.md` for detailed prompt engineering and model selection guidance.
+
+#### kie provider (PAID):
+
+```
+Use remotion-media generate_image:
+- prompt: [crafted prompt]
+- project_path: [project root path]
+```
+
+The image is saved to the project's `public/` directory.
 
 ### 5. Show Usage in Remotion
 
