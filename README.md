@@ -52,57 +52,85 @@
 
 ```
 === Phase 1: 기획 (Planning) ===
-[필수] /project-scope       → docs/00-project-scope.md        범위/일정/예산/수정횟수
-[선택] /brand-kit           → docs/00-brand-guidelines.md      로고/색상/폰트/톤
-[필수] /select-models       → config.yaml                     AI 프로바이더 선택
+
+커맨드              역할                                         산출물
+─────────────────────────────────────────────────────────────────────────────────
+[필수] /project-scope   프로젝트 범위·일정·예산·수정횟수를 질문하여 정의    → docs/00-project-scope.md
+[선택] /brand-kit       기존 브랜드 가이드라인(로고·색상·폰트·톤) 입력     → docs/00-brand-guidelines.md
+[필수] /select-models   AI 프로바이더를 기능별로 선택 (무료/유료 프리셋)    → config.yaml
+
 
 === Phase 2: 프리프로덕션 (Pre-production) ===
-[필수] /receive-brief       → docs/01-client-brief.md          브리프 수령 (10개 질문)
-[필수] /creative-brief      → docs/02-creative-brief.md        전략 수립 (5개 질문)
-[선택] /concept-options     → docs/03-concepts.md              복수 컨셉 비교
-[필수] /treatment           → docs/03-treatment.md             비주얼 방향 (6개 질문) ★승인
-[필수] /write-script        → docs/04-script.md                스크립트 (5개 질문) ★승인
-[선택] /fact-check          → docs/04-fact-check.md            데이터 정확성 검증
-[필수] /storyboard          → docs/05-storyboard.md            장면별 Q&A (8개/씬) ★승인
-[선택] /style-frame         → docs/style-frames/               고퀄 디자인 시안
-[선택] /animatic            → src/Animatic.tsx                 타이밍 프리뷰
-[필수] /prompt-sheet        → docs/06-*.md (3개 파일)           AI 프롬프트+스타일+모델
-[필수] /legal-check         → docs/07-legal-checklist.md       법적 검토 ★승인
+
+커맨드              역할                                         산출물
+─────────────────────────────────────────────────────────────────────────────────
+[필수] /receive-brief   클라이언트 요구사항을 10개 질문으로 체계적 수령      → docs/01-client-brief.md
+[필수] /creative-brief  브리프 기반 커뮤니케이션 전략 수립 (5개 전략 질문)   → docs/02-creative-brief.md
+[선택] /concept-options 2~3개 크리에이티브 컨셉을 비교·평가                → docs/03-concepts.md
+[필수] /treatment       영상의 비주얼 방향·스타일·무드 제안 (6개 질문)      → docs/03-treatment.md ★승인
+[필수] /write-script    장면별 나레이션·화면·음악 지시 포함 AV 스크립트 작성  → docs/04-script.md ★승인
+[선택] /fact-check      스크립트 내 데이터·통계의 정확성 검증              → docs/04-fact-check.md
+[필수] /storyboard      각 장면의 피사체·카메라·배경을 질문하여 확정 (씬당 8개) → docs/05-storyboard.md ★승인
+[선택] /style-frame     고퀄리티 디자인 시안 이미지 3~5장 생성             → docs/style-frames/
+[선택] /animatic        스토리보드를 Remotion으로 타이밍 프리뷰            → src/Animatic.tsx
+[필수] /prompt-sheet    스토리보드를 AI 생성용 프롬프트·스타일·모델로 변환    → docs/06-*.md (3개 파일)
+[필수] /legal-check     AI 생성물 라이선스·저작권·초상권 법적 검토          → docs/07-legal-checklist.md ★승인
+
 
 === Phase 3: 프로덕션 (Production) ===
-[필수] /create-video        → out/video.mp4                    전체 영상 파이프라인
-[선택] /create-short        → out/short.mp4                    숏폼 세로 영상
-[필수] /add-voiceover       → public/audio/voiceover.mp3       나레이션 생성
-[필수] /add-music           → public/audio/music.wav           배경음악 생성
-[선택] /generate-image      → public/images/                   AI 이미지 생성
-[선택] /generate-clip       → public/footage/                  AI 영상 클립 생성
-[선택] /find-footage        → public/footage/                  스톡 영상 검색
-[선택] /add-captions        → 자막 컴포넌트                      TikTok 스타일 자막
-[선택] /add-transitions     → 전환 효과                          장면 전환
-[선택] /transcribe          → SRT 파일                          음성→텍스트
-[선택] /audio-mix           → 오디오 최적화                       LUFS 표준 적용
-[선택] /color-grade         → 컬러 보정                          색감 일관성
-[선택] /analyze-footage     → 분석 결과                          기존 영상 AI 분석
+
+커맨드              역할                                         산출물
+─────────────────────────────────────────────────────────────────────────────────
+[필수] /create-video    프리프로덕션 문서 기반 전체 영상 제작 파이프라인 실행  → out/video.mp4
+[선택] /create-short    세로형 숏폼 영상 제작 (TikTok/Reels/Shorts)      → out/short.mp4
+[필수] /add-voiceover   스크립트 텍스트로 TTS 나레이션 생성 + 컴포지션 연결  → public/audio/voiceover.mp3
+[필수] /add-music       장면 무드에 맞는 배경음악 생성 + 페이드·더킹 적용   → public/audio/music.wav
+[선택] /generate-image  프롬프트 시트 기반 장면별 AI 이미지 생성            → public/images/
+[선택] /generate-clip   AI 영상 클립 생성 (텍스트→영상, 이미지→영상)       → public/footage/
+[선택] /find-footage    Pexels에서 키워드로 스톡 영상/사진 검색·다운로드    → public/footage/
+[선택] /add-captions    나레이션 음성을 분석하여 TikTok 스타일 자막 생성     → 자막 컴포넌트
+[선택] /add-transitions 장면 간 전환 효과 추가 (fade, slide, wipe, flip)  → 전환 컴포넌트
+[선택] /transcribe      오디오/비디오 파일을 텍스트로 변환 (SRT 자막 생성)   → SRT 파일
+[선택] /audio-mix       플랫폼별 LUFS 표준 적용 + 음량 밸런스 최적화       → 오디오 최적화
+[선택] /color-grade     장면 간 색감 일관성 검사 + CSS 필터로 보정          → 컬러 보정
+[선택] /analyze-footage 기존 영상을 AI로 분석 (장면탐지·객체인식·요약)      → 분석 결과
+
 
 === Phase 4: 포스트프로덕션 (Post-production) ===
-[필수] /review-video        → 리뷰 피드백                        AI 영상 리뷰
-[선택] /revision-log        → docs/08-revision-log.md          수정 라운드 관리
-[필수] /qc-check            → QC 리포트                         기술 품질 검증
-[선택] /accessibility       → 접근성 리포트                       WCAG 2.1 AA 검증
-[선택] /thumbnail           → out/thumbnails/                  썸네일 생성
-[선택] /seo-metadata        → docs/10-seo-metadata.md          SEO 메타데이터
+
+커맨드              역할                                         산출물
+─────────────────────────────────────────────────────────────────────────────────
+[필수] /review-video    렌더링된 영상을 AI가 4개 차원으로 리뷰·피드백       → 리뷰 피드백
+[선택] /revision-log    수정 요청을 라운드별로 접수·추적·버전 관리          → docs/08-revision-log.md
+[필수] /qc-check        ffprobe로 코덱·해상도·LUFS·파일크기 기술 검증      → QC 리포트
+[선택] /accessibility   WCAG 2.1 AA 기준 자막·색상대비·깜빡임 검증        → 접근성 리포트
+[선택] /thumbnail       CTR 최적화된 썸네일 생성 (A/B 시안 포함)           → out/thumbnails/
+[선택] /seo-metadata    플랫폼별 제목·설명·태그·해시태그·챕터 생성          → docs/10-seo-metadata.md
+
 
 === Phase 5: 납품 (Delivery) ===
-[필수] /export-multi        → 플랫폼별 MP4                       다중 포맷 출력
-[필수] /deliver             → docs/09-delivery-package.md       납품 패키지
-[선택] /localize            → 다국어 MP4 + SRT                   다국어 버전
+
+커맨드              역할                                         산출물
+─────────────────────────────────────────────────────────────────────────────────
+[필수] /export-multi    하나의 소스에서 플랫폼별 포맷으로 변환 출력         → 플랫폼별 MP4
+[필수] /deliver         최종 파일+스펙시트+크레딧+사용가이드 납품 패키지 구성 → docs/09-delivery-package.md
+[선택] /localize        자막 번역 + TTS 더빙으로 다국어 버전 생성          → 다국어 MP4 + SRT
+
 
 === Phase 6: 공개 후 (Post-release) ===
-[선택] /repurpose           → out/repurposed/                  콘텐츠 재활용
-[선택] /archive             → docs/99-archive.md               프로젝트 아카이빙
+
+커맨드              역할                                         산출물
+─────────────────────────────────────────────────────────────────────────────────
+[선택] /repurpose       완성 영상에서 클립·GIF·블로그·오디오 등 파생물 생성  → out/repurposed/
+[선택] /archive         프로젝트 회고 + 에셋 출처 정리 + 아카이빙          → docs/99-archive.md
+
 
 === 유틸리티 ===
-[아무때나] /progress        → 터미널 출력                        진행 상황 대시보드
+
+커맨드              역할                                         산출물
+─────────────────────────────────────────────────────────────────────────────────
+[아무때나] /setup       환경 점검 + 폴더 구조 생성 + AI 모델 설정          → 프로젝트 스캐폴드
+[아무때나] /progress    산출물 폴더 스캔하여 진행 상황 자동 파악·갱신       → docs/00-progress.md
 ```
 
 ### 승인 체크포인트 (★ 표시)
