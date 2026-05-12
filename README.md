@@ -39,65 +39,70 @@
 | 포스트프로덕션 | AI 리뷰만 | QC, 접근성, 썸네일, SEO, 수정관리 |
 | 납품 | 없음 | 다중 포맷, 납품 패키지, 다국어, 법적 검토 |
 | 공개 후 | 없음 | 콘텐츠 재활용, 아카이빙 |
-| 커맨드 수 | 13개 | **39개** |
+| 커맨드 수 | 13개 | **40개** |
 | 업계 표준 커버율 | ~20% | **~85%** |
 
 ---
 
-## 전체 프로세스 (6단계, 39개 커맨드)
+## 전체 프로세스 (6단계, 40개 커맨드)
 
 ### 프로세스 흐름도
 
+> 범례: `[필수]` 반드시 실행 · `[선택]` 필요시 실행 · `★승인` 사용자 승인 후 다음 진행
+
 ```
 === Phase 1: 기획 (Planning) ===
-/project-scope       → docs/00-project-scope.md        범위/일정/예산/수정횟수
-/brand-kit           → docs/00-brand-guidelines.md      로고/색상/폰트/톤
-/select-models       → config.yaml                     AI 프로바이더 선택
+[필수] /project-scope       → docs/00-project-scope.md        범위/일정/예산/수정횟수
+[선택] /brand-kit           → docs/00-brand-guidelines.md      로고/색상/폰트/톤
+[필수] /select-models       → config.yaml                     AI 프로바이더 선택
 
 === Phase 2: 프리프로덕션 (Pre-production) ===
-/receive-brief       → docs/01-client-brief.md          브리프 수령 (10개 질문)
-/creative-brief      → docs/02-creative-brief.md        전략 수립 (5개 질문)
-/concept-options     → docs/03-concepts.md              복수 컨셉 비교 [선택]
-/treatment           → docs/03-treatment.md             비주얼 방향 (6개 질문) ★승인
-/write-script        → docs/04-script.md                스크립트 (5개 질문) ★승인
-/fact-check          → docs/04-fact-check.md            데이터 정확성 검증 [선택]
-/storyboard          → docs/05-storyboard.md            장면별 Q&A (8개/씬) ★승인
-/style-frame         → docs/style-frames/               고퀄 디자인 시안 [선택]
-/animatic            → src/Animatic.tsx                 타이밍 프리뷰 [선택]
-/prompt-sheet        → docs/06-*.md (3개 파일)           AI 프롬프트+스타일+모델
-/legal-check         → docs/07-legal-checklist.md       법적 검토 ★승인
+[필수] /receive-brief       → docs/01-client-brief.md          브리프 수령 (10개 질문)
+[필수] /creative-brief      → docs/02-creative-brief.md        전략 수립 (5개 질문)
+[선택] /concept-options     → docs/03-concepts.md              복수 컨셉 비교
+[필수] /treatment           → docs/03-treatment.md             비주얼 방향 (6개 질문) ★승인
+[필수] /write-script        → docs/04-script.md                스크립트 (5개 질문) ★승인
+[선택] /fact-check          → docs/04-fact-check.md            데이터 정확성 검증
+[필수] /storyboard          → docs/05-storyboard.md            장면별 Q&A (8개/씬) ★승인
+[선택] /style-frame         → docs/style-frames/               고퀄 디자인 시안
+[선택] /animatic            → src/Animatic.tsx                 타이밍 프리뷰
+[필수] /prompt-sheet        → docs/06-*.md (3개 파일)           AI 프롬프트+스타일+모델
+[필수] /legal-check         → docs/07-legal-checklist.md       법적 검토 ★승인
 
 === Phase 3: 프로덕션 (Production) ===
-/create-video        → out/video.mp4                    전체 영상 파이프라인
-/create-short        → out/short.mp4                    숏폼 세로 영상
-/add-voiceover       → public/audio/voiceover.mp3       나레이션 생성
-/add-music           → public/audio/music.wav           배경음악 생성
-/generate-image      → public/images/                   AI 이미지 생성
-/generate-clip       → public/footage/                  AI 영상 클립 생성
-/find-footage        → public/footage/                  스톡 영상 검색
-/add-captions        → 자막 컴포넌트                      TikTok 스타일 자막
-/add-transitions     → 전환 효과                          장면 전환
-/transcribe          → SRT 파일                          음성→텍스트
-/audio-mix           → 오디오 최적화                       LUFS 표준 적용
-/color-grade         → 컬러 보정                          색감 일관성
-/analyze-footage     → 분석 결과                          기존 영상 AI 분석
+[필수] /create-video        → out/video.mp4                    전체 영상 파이프라인
+[선택] /create-short        → out/short.mp4                    숏폼 세로 영상
+[필수] /add-voiceover       → public/audio/voiceover.mp3       나레이션 생성
+[필수] /add-music           → public/audio/music.wav           배경음악 생성
+[선택] /generate-image      → public/images/                   AI 이미지 생성
+[선택] /generate-clip       → public/footage/                  AI 영상 클립 생성
+[선택] /find-footage        → public/footage/                  스톡 영상 검색
+[선택] /add-captions        → 자막 컴포넌트                      TikTok 스타일 자막
+[선택] /add-transitions     → 전환 효과                          장면 전환
+[선택] /transcribe          → SRT 파일                          음성→텍스트
+[선택] /audio-mix           → 오디오 최적화                       LUFS 표준 적용
+[선택] /color-grade         → 컬러 보정                          색감 일관성
+[선택] /analyze-footage     → 분석 결과                          기존 영상 AI 분석
 
 === Phase 4: 포스트프로덕션 (Post-production) ===
-/review-video        → 리뷰 피드백                        AI 영상 리뷰
-/revision-log        → docs/08-revision-log.md          수정 라운드 관리
-/qc-check            → QC 리포트                         기술 품질 검증
-/accessibility       → 접근성 리포트                       WCAG 2.1 AA 검증
-/thumbnail           → out/thumbnails/                  썸네일 생성
-/seo-metadata        → docs/10-seo-metadata.md          SEO 메타데이터
+[필수] /review-video        → 리뷰 피드백                        AI 영상 리뷰
+[선택] /revision-log        → docs/08-revision-log.md          수정 라운드 관리
+[필수] /qc-check            → QC 리포트                         기술 품질 검증
+[선택] /accessibility       → 접근성 리포트                       WCAG 2.1 AA 검증
+[선택] /thumbnail           → out/thumbnails/                  썸네일 생성
+[선택] /seo-metadata        → docs/10-seo-metadata.md          SEO 메타데이터
 
 === Phase 5: 납품 (Delivery) ===
-/export-multi        → 플랫폼별 MP4                       다중 포맷 출력
-/deliver             → docs/09-delivery-package.md       납품 패키지
-/localize            → 다국어 MP4 + SRT                   다국어 버전
+[필수] /export-multi        → 플랫폼별 MP4                       다중 포맷 출력
+[필수] /deliver             → docs/09-delivery-package.md       납품 패키지
+[선택] /localize            → 다국어 MP4 + SRT                   다국어 버전
 
 === Phase 6: 공개 후 (Post-release) ===
-/repurpose           → out/repurposed/                  콘텐츠 재활용
-/archive             → docs/99-archive.md               프로젝트 아카이빙
+[선택] /repurpose           → out/repurposed/                  콘텐츠 재활용
+[선택] /archive             → docs/99-archive.md               프로젝트 아카이빙
+
+=== 유틸리티 ===
+[아무때나] /progress        → 터미널 출력                        진행 상황 대시보드
 ```
 
 ### 승인 체크포인트 (★ 표시)
@@ -413,7 +418,7 @@ models:
 
 ---
 
-## 커맨드 전체 목록 (39개)
+## 커맨드 전체 목록 (40개)
 
 ### Phase 1: 기획 (3개)
 
@@ -476,82 +481,114 @@ models:
 | `/deliver` | 최종 납품 패키지 (파일+스펙시트+크레딧+가이드) | `docs/09-delivery-package.md` + `delivery/` |
 | `/localize` | 다국어 버전 (자막 번역 + TTS 더빙) | 언어별 MP4 + SRT |
 
-### Phase 6: 공개 후 (3개)
+### Phase 6: 공개 후 (2개)
 
 | 커맨드 | 설명 | 산출물 |
 |--------|------|--------|
 | `/repurpose` | 콘텐츠 재활용 (클립/GIF/블로그/오디오 추출) | `out/repurposed/` |
 | `/archive` | 프로젝트 아카이빙 + 회고 | `docs/99-archive.md` |
-| `/setup` | Remotion 프로젝트 초기 설정 | 프로젝트 스캐폴드 |
+
+### 유틸리티 (2개)
+
+| 커맨드 | 설명 | 산출물 |
+|--------|------|--------|
+| `/setup` | 프로젝트 초기 설정 (환경 + 폴더 구조 + AI 모델) | 프로젝트 스캐폴드 + `docs/00-progress.md` |
+| `/progress` | 진행 상황 대시보드 (산출물 스캔 → 자동 갱신) | 터미널 출력 + `docs/00-progress.md` 갱신 |
 
 ---
 
 ## 프로젝트 구조
 
+### 패키지 구조 (설치되는 플러그인)
+
 ```
-remotion-superpowers/
-├── config.yaml                          AI 모델 선택 설정
+remotion-superpowers/                    ← 플러그인 패키지
+│
+├── .claude-plugin/                      플러그인 메타
+│   ├── plugin.json
+│   └── marketplace.json
 ├── .mcp.json                            5개 MCP 서버 설정
-├── .claude-plugin/
-│   ├── plugin.json                      플러그인 메타데이터
-│   └── marketplace.json                 마켓플레이스 등록 정보
-├── commands/                            39개 슬래시 커맨드
-│   ├── project-scope.md                 기획: 프로젝트 범위
-│   ├── brand-kit.md                     기획: 브랜드 가이드라인
-│   ├── select-models.md                 기획: AI 모델 선택
-│   ├── receive-brief.md                 프리프로덕션: 브리프 수령
-│   ├── creative-brief.md                프리프로덕션: 크리에이티브 브리프
-│   ├── concept-options.md               프리프로덕션: 복수 컨셉 비교
-│   ├── treatment.md                     프리프로덕션: 트리트먼트
-│   ├── write-script.md                  프리프로덕션: 스크립트
-│   ├── fact-check.md                    프리프로덕션: 팩트체크
-│   ├── storyboard.md                    프리프로덕션: 스토리보드
-│   ├── style-frame.md                   프리프로덕션: 스타일프레임
-│   ├── animatic.md                      프리프로덕션: 애니매틱
-│   ├── prompt-sheet.md                  프리프로덕션: 프롬프트 시트
-│   ├── legal-check.md                   프리프로덕션: 법적 검토
-│   ├── create-video.md                  프로덕션: 전체 영상
-│   ├── create-short.md                  프로덕션: 숏폼 영상
-│   ├── add-voiceover.md                 프로덕션: 나레이션
-│   ├── add-music.md                     프로덕션: 배경음악
-│   ├── generate-image.md                프로덕션: AI 이미지
-│   ├── generate-clip.md                 프로덕션: AI 영상 클립
-│   ├── find-footage.md                  프로덕션: 스톡 영상
-│   ├── add-captions.md                  프로덕션: 자막
-│   ├── add-transitions.md               프로덕션: 전환 효과
-│   ├── transcribe.md                    프로덕션: 음성→텍스트
-│   ├── audio-mix.md                     프로덕션: 오디오 믹싱
-│   ├── color-grade.md                   프로덕션: 컬러 보정
-│   ├── analyze-footage.md               프로덕션: 영상 분석
-│   ├── review-video.md                  포스트: AI 리뷰
-│   ├── revision-log.md                  포스트: 수정 관리
-│   ├── qc-check.md                      포스트: QC 검증
-│   ├── accessibility.md                 포스트: 접근성
-│   ├── thumbnail.md                     포스트: 썸네일
-│   ├── seo-metadata.md                  포스트: SEO
-│   ├── export-multi.md                  납품: 다중 포맷
-│   ├── deliver.md                       납품: 납품 패키지
-│   ├── localize.md                      납품: 다국어
-│   ├── repurpose.md                     공개 후: 재활용
-│   ├── archive.md                       공개 후: 아카이빙
-│   └── setup.md                         초기 설정
+├── config.yaml                          AI 모델 선택 설정
+│
+├── commands/                            40개 슬래시 커맨드
+│   ├── [Phase 1] project-scope, brand-kit, select-models
+│   ├── [Phase 2] receive-brief, creative-brief, concept-options,
+│   │             treatment, write-script, fact-check, storyboard,
+│   │             style-frame, animatic, prompt-sheet, legal-check
+│   ├── [Phase 3] create-video, create-short, add-voiceover, add-music,
+│   │             generate-image, generate-clip, find-footage,
+│   │             add-captions, add-transitions, transcribe,
+│   │             audio-mix, color-grade, analyze-footage
+│   ├── [Phase 4] review-video, revision-log, qc-check,
+│   │             accessibility, thumbnail, seo-metadata
+│   ├── [Phase 5] export-multi, deliver, localize
+│   ├── [Phase 6] repurpose, archive
+│   └── [유틸리티] setup, progress
+│
 ├── agents/                              3개 AI 에이전트
 │   ├── video-director.md
 │   ├── media-scout.md
 │   └── post-producer.md
+│
 ├── skills/
 │   └── remotion-production/
-│       ├── SKILL.md                     프로덕션 워크플로우 총괄
-│       └── rules/                       20개 프로덕션 규칙
-│           ├── questioning-protocol.md  질문 프로토콜
-│           ├── model-providers.md       프로바이더 가이드
+│       ├── SKILL.md                     메인 스킬 정의
+│       └── rules/                       21개 규칙 파일
+│           ├── questioning-protocol.md  질문 프로토콜 (공통)
+│           ├── progress-tracking.md     진행 상황 자동 갱신 (공통)
 │           ├── production-pipeline.md   E2E 파이프라인
+│           ├── model-providers.md       프로바이더 가이드
 │           └── ... (17개 추가 규칙)
+│
 ├── hooks/hooks.json
-├── scripts/
-├── LICENSE                              MIT
-└── README.md                            이 파일
+└── README.md
 ```
+
+### 산출물 폴더 구조 (`/setup` 실행 시 프로젝트에 생성)
+
+```
+your-remotion-project/
+│
+├── docs/                                📄 기획·프리프로덕션 산출물
+│   ├── 00-progress.md                   진행 상황 대시보드 (자동 갱신)
+│   ├── 00-project-scope.md              ← /project-scope
+│   ├── 00-brand-guidelines.md           ← /brand-kit
+│   ├── 01-client-brief.md               ← /receive-brief
+│   ├── 02-creative-brief.md             ← /creative-brief
+│   ├── 03-concepts.md                   ← /concept-options
+│   ├── 03-treatment.md                  ← /treatment ★승인
+│   ├── 04-script.md                     ← /write-script ★승인
+│   ├── 04-fact-check.md                 ← /fact-check
+│   ├── 05-storyboard.md                 ← /storyboard ★승인
+│   ├── 06-prompt-sheet.md               ← /prompt-sheet
+│   ├── 07-legal-checklist.md            ← /legal-check ★승인
+│   ├── 08-revision-log.md               ← /revision-log
+│   ├── 09-delivery-package.md           ← /deliver
+│   ├── 10-seo-metadata.md               ← /seo-metadata
+│   ├── 99-archive.md                    ← /archive
+│   ├── storyboard-previews/             ← /storyboard (프리뷰 이미지)
+│   └── style-frames/                    ← /style-frame (디자인 시안)
+│
+├── public/                              🎵 미디어 에셋
+│   ├── audio/
+│   │   ├── voiceover.mp3                ← /add-voiceover
+│   │   └── music.wav                    ← /add-music
+│   ├── images/                          ← /generate-image
+│   └── footage/                         ← /generate-clip, /find-footage
+│
+├── out/                                 🎬 렌더링 결과물
+│   ├── video.mp4                        ← /create-video
+│   ├── short.mp4                        ← /create-short
+│   ├── thumbnails/                      ← /thumbnail
+│   └── repurposed/                      ← /repurpose
+│
+├── delivery/                            📦 납품 패키지
+│   └── (최종 파일 + 스펙시트)            ← /deliver
+│
+└── config.yaml                          ← /select-models
+```
+
+> 세션을 다시 시작해도 `/progress`를 실행하면 이 폴더를 스캔하여 어디까지 진행했는지 자동으로 파악합니다.
 
 ---
 

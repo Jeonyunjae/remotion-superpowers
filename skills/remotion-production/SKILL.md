@@ -117,6 +117,12 @@ The complete video production pipeline covers 6 phases: Planning → Pre-product
 | 38 | `/archive` | Archive project with retrospective | `docs/99-archive.md` |
 | 39 | `/setup` | Initialize Remotion project | Project scaffold |
 
+### Utility (유틸리티)
+
+| # | Command | Description | Output |
+|---|---------|-------------|--------|
+| 40 | `/progress` | Scan docs/assets and show completion dashboard | Terminal + `docs/00-progress.md` |
+
 ### Document Flow
 
 ```
@@ -229,6 +235,7 @@ Read individual rule files for detailed workflows:
 - `rules/asset-management.md` — File organization, naming conventions, staticFile() reference
 - `rules/model-providers.md` — All supported providers, setup instructions, usage examples, cost/quality comparison
 - `rules/questioning-protocol.md` — Ambiguity detection, follow-up questioning, "알아서 해줘" handling
+- `rules/progress-tracking.md` — **[공통 규칙]** 모든 커맨드가 산출물 저장 후 docs/00-progress.md 자동 갱신
 
 ## Key Principles
 

@@ -43,9 +43,128 @@ Check if the current directory has a `remotion.config.ts` or `remotion.config.js
 
 Do NOT proceed until the user is in a Remotion project directory.
 
-## Step 3: Install Remotion Agent Skills
+## Step 3: 프로덕션 폴더 구조 생성
+
+Remotion 프로젝트가 확인되면, 영상 제작에 필요한 폴더 구조를 자동으로 생성합니다. 이 구조는 전체 6-Phase 파이프라인의 산출물을 관리하며, 세션을 다시 시작해도 어디까지 진행했는지 파악할 수 있습니다.
+
+```bash
+# 산출물 관리 폴더
+mkdir -p docs/storyboard-previews
+mkdir -p docs/style-frames
+
+# 미디어 에셋 폴더
+mkdir -p public/audio
+mkdir -p public/images
+mkdir -p public/footage
+
+# 렌더링 결과물 폴더
+mkdir -p out/thumbnails
+mkdir -p out/repurposed
+
+# 납품 폴더
+mkdir -p delivery
+```
+
+폴더 생성 후, 초기 진행 상황 문서를 작성합니다:
+
+**파일**: `docs/00-progress.md`
+
+```markdown
+# 진행 상황 대시보드
+
+> 마지막 업데이트: [현재 날짜 시간]
+> `/progress` 명령으로 자동 업데이트됩니다.
+
+## 전체 요약
+
+| 항목 | 값 |
+|------|---|
+| 전체 진행률 | 0% |
+| 필수 완료 | 0/16 |
+| 선택 완료 | 0/18 |
+| 현재 단계 | Phase 1 — 기획 |
+| 다음 명령어 | /project-scope |
+
+## Phase 1: 기획
+
+| 상태 | 커맨드 | 산출물 | 구분 |
+|------|--------|--------|------|
+| ⬜ | /project-scope | docs/00-project-scope.md | 필수 |
+| ⬜ | /brand-kit | docs/00-brand-guidelines.md | 선택 |
+| ⬜ | /select-models | config.yaml | 필수 |
+
+## Phase 2: 프리프로덕션
+
+| 상태 | 커맨드 | 산출물 | 구분 |
+|------|--------|--------|------|
+| ⬜ | /receive-brief | docs/01-client-brief.md | 필수 |
+| ⬜ | /creative-brief | docs/02-creative-brief.md | 필수 |
+| ⬜ | /concept-options | docs/03-concepts.md | 선택 |
+| ⬜ | /treatment | docs/03-treatment.md | 필수 ★승인 |
+| ⬜ | /write-script | docs/04-script.md | 필수 ★승인 |
+| ⬜ | /fact-check | docs/04-fact-check.md | 선택 |
+| ⬜ | /storyboard | docs/05-storyboard.md | 필수 ★승인 |
+| ⬜ | /style-frame | docs/style-frames/ | 선택 |
+| ⬜ | /animatic | src/Animatic.tsx | 선택 |
+| ⬜ | /prompt-sheet | docs/06-prompt-sheet.md | 필수 |
+| ⬜ | /legal-check | docs/07-legal-checklist.md | 필수 ★승인 |
+
+## Phase 3: 프로덕션
+
+| 상태 | 커맨드 | 산출물 | 구분 |
+|------|--------|--------|------|
+| ⬜ | /create-video | out/video.mp4 | 필수 |
+| ⬜ | /add-voiceover | public/audio/voiceover.mp3 | 필수 |
+| ⬜ | /add-music | public/audio/music.wav | 필수 |
+| ⬜ | /generate-image | public/images/ | 선택 |
+| ⬜ | /generate-clip | public/footage/ | 선택 |
+| ⬜ | /find-footage | public/footage/ | 선택 |
+| ⬜ | /add-captions | 자막 컴포넌트 | 선택 |
+| ⬜ | /audio-mix | 오디오 최적화 | 선택 |
+| ⬜ | /color-grade | 컬러 보정 | 선택 |
+
+## Phase 4: 포스트프로덕션
+
+| 상태 | 커맨드 | 산출물 | 구분 |
+|------|--------|--------|------|
+| ⬜ | /review-video | 리뷰 피드백 | 필수 |
+| ⬜ | /qc-check | QC 리포트 | 필수 |
+| ⬜ | /revision-log | docs/08-revision-log.md | 선택 |
+| ⬜ | /accessibility | 접근성 리포트 | 선택 |
+| ⬜ | /thumbnail | out/thumbnails/ | 선택 |
+| ⬜ | /seo-metadata | docs/10-seo-metadata.md | 선택 |
+
+## Phase 5: 납품
+
+| 상태 | 커맨드 | 산출물 | 구분 |
+|------|--------|--------|------|
+| ⬜ | /export-multi | 플랫폼별 MP4 | 필수 |
+| ⬜ | /deliver | docs/09-delivery-package.md | 필수 |
+| ⬜ | /localize | 다국어 MP4 + SRT | 선택 |
+
+## Phase 6: 공개 후
+
+| 상태 | 커맨드 | 산출물 | 구분 |
+|------|--------|--------|------|
+| ⬜ | /repurpose | out/repurposed/ | 선택 |
+| ⬜ | /archive | docs/99-archive.md | 선택 |
+```
+
+사용자에게 안내:
+
+> "프로덕션 폴더 구조를 생성했습니다:
+> - `docs/` — 기획·프리프로덕션 문서 + 진행 상황
+> - `public/audio|images|footage/` — 미디어 에셋
+> - `out/` — 렌더링 결과물
+> - `delivery/` — 납품 패키지
+>
+> `docs/00-progress.md`에서 전체 진행 상황을 확인할 수 있습니다.
+> 아무 때나 `/progress`를 실행하면 자동으로 업데이트됩니다."
+
+## Step 4: Install Remotion Agent Skills
 
 Check if `.claude/skills/remotion-best-practices/` exists.
+
 
 **If not installed:**
 ```bash
@@ -54,7 +173,7 @@ npx skills add remotion-dev/skills
 
 Tell the user: "Remotion best practices skills installed. Claude now knows Remotion's APIs, animation patterns, audio handling, and more."
 
-## Step 3.5: Choose Your Models
+## Step 4.5: Choose Your Models
 
 This is where you configure which AI providers to use for each function. This controls your costs.
 
@@ -111,7 +230,7 @@ No Python packages needed — all processing happens in the cloud via KIE.
 
 Based on the chosen preset, create the `config.yaml` file. Run `/select-models` if the user chose CUSTOM, or write the appropriate preset configuration directly.
 
-## Step 4: Configure API Keys
+## Step 5: Configure API Keys
 
 Walk the user through ONLY the API keys needed for their chosen preset. Skip keys for services they won't use.
 
@@ -168,7 +287,7 @@ Walk the user through ONLY the API keys needed for their chosen preset. Skip key
 
 After each key, ask the user to confirm they've set it before moving to the next one. It's OK to skip optional ones.
 
-## Step 5: Reload Shell & Verify
+## Step 6: Reload Shell & Verify
 
 Tell the user to reload their shell:
 ```bash
@@ -185,7 +304,7 @@ echo "ELEVENLABS_API_KEY: ${ELEVENLABS_API_KEY:+SET}"
 echo "REPLICATE_API_TOKEN: ${REPLICATE_API_TOKEN:+SET}"
 ```
 
-## Step 6: Verify Connections
+## Step 7: Verify Connections
 
 For the chosen preset, verify that tools work:
 
@@ -213,7 +332,7 @@ All configured servers should show as connected. If any fail:
 - For `npx`-based servers, ensure Node.js is installed
 - Try restarting Claude Code
 
-## Step 7: Setup Complete
+## Step 8: Setup Complete
 
 Print a summary:
 
