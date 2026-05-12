@@ -209,26 +209,43 @@
 ### 1. 설치
 
 #### 필수 요건
-- Claude Code (플러그인 지원 버전)
+- Claude Code CLI (플러그인 지원 버전)
 - Node.js >= 18
 - Python 3 + pip (무료 프로바이더 사용 시)
 
-#### 설치 순서
+#### 방법 A: 로컬 설치 (개발/테스트용, 가장 빠름)
 
 ```bash
 # 1. 레포 클론
-git clone https://github.com/Jeonyunjae/remotion-superpowers.git
-cd remotion-superpowers
+git clone https://github.com/AI-Agent-Jeon/remotion-superpowers.git
 
-# 2. Claude Code에서 플러그인 등록
-/plugin marketplace add .
-/plugin install remotion-superpowers
+# 2. 플러그인 경로를 지정하여 Claude Code 실행
+claude --plugin-dir /path/to/remotion-superpowers
 
-# 3. 설정 마법사 실행
+# 3. Claude Code 채팅창에서 설정 마법사 실행
 /setup
 ```
 
-#### 무료 프리셋 빠른 설치
+#### 방법 B: 마켓플레이스 등록 후 설치
+
+```bash
+# Claude Code 채팅창에서:
+/plugin marketplace add AI-Agent-Jeon/remotion-superpowers
+/plugin install remotion-superpowers@AI-Agent-Jeon-remotion-superpowers
+
+# 설정 마법사 실행
+/setup
+```
+
+#### 방법 C: 원격 URL로 설치
+
+```bash
+claude --plugin-url https://github.com/AI-Agent-Jeon/remotion-superpowers/archive/refs/heads/main.zip
+```
+
+> **플러그인 리로드**: 설치 후 업데이트가 반영되지 않으면 `/reload-plugins` 실행
+
+#### 무료 프리셋 빠른 설치 (Python 패키지)
 
 ```bash
 pip install edge-tts faster-whisper transformers scipy soundfile torch
