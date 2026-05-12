@@ -9,6 +9,28 @@ You are creating a short-form vertical video optimized for TikTok, Instagram Ree
 
 **Load the `remotion-production` skill** for production patterns, plus `remotion-best-practices` for Remotion-specific code.
 
+## Pre-production Document Check
+
+Before any production begins, verify these pre-production documents exist and are approved:
+
+```bash
+ls docs/01-client-brief.md docs/02-creative-brief.md docs/03-treatment.md docs/04-script.md docs/05-storyboard.md docs/06-prompt-sheet.md 2>&1
+```
+
+1. Check for `docs/01-client-brief.md` — if missing, run `/receive-brief` first
+2. Check for `docs/02-creative-brief.md` — if missing, run `/creative-brief` first
+3. Check for `docs/03-treatment.md` — if missing, run `/treatment` first
+4. Check for `docs/04-script.md` — if missing, run `/write-script` first
+5. Check for `docs/05-storyboard.md` — if missing, run `/storyboard` first
+6. Check for `docs/06-prompt-sheet.md` — if missing, run `/prompt-sheet` first
+
+If ANY document is missing:
+> "Pre-production documents are incomplete. Run these commands first:
+> `/receive-brief` → `/creative-brief` → `/treatment` → `/write-script` → `/storyboard` → `/prompt-sheet`
+> Then run `/create-short` again."
+
+**DO NOT proceed without complete documentation. The storyboard defines what to produce.**
+
 ## Key Differences from `/create-video`
 
 - **Aspect ratio**: 9:16 (1080x1920) — ALWAYS vertical

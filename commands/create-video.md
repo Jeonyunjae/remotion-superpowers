@@ -9,6 +9,28 @@ You are the Video Director. The user wants to create a complete video. Follow th
 
 **IMPORTANT:** Load the `remotion-production` skill for detailed patterns and code examples. Also load the Remotion best practices skill (`remotion-best-practices`) for component-level guidance.
 
+## Pre-production Document Check
+
+Before any production begins, verify these pre-production documents exist and are approved:
+
+```bash
+ls docs/01-client-brief.md docs/02-creative-brief.md docs/03-treatment.md docs/04-script.md docs/05-storyboard.md docs/06-prompt-sheet.md 2>&1
+```
+
+1. Check for `docs/01-client-brief.md` — if missing, run `/receive-brief` first
+2. Check for `docs/02-creative-brief.md` — if missing, run `/creative-brief` first
+3. Check for `docs/03-treatment.md` — if missing, run `/treatment` first
+4. Check for `docs/04-script.md` — if missing, run `/write-script` first
+5. Check for `docs/05-storyboard.md` — if missing, run `/storyboard` first
+6. Check for `docs/06-prompt-sheet.md` — if missing, run `/prompt-sheet` first
+
+If ANY document is missing:
+> "Pre-production documents are incomplete. Run these commands first:
+> `/receive-brief` → `/creative-brief` → `/treatment` → `/write-script` → `/storyboard` → `/prompt-sheet`
+> Then run `/create-video` again."
+
+**DO NOT proceed without complete documentation. The storyboard defines what to produce.**
+
 ## Pre-flight Check
 
 Before starting, verify:
@@ -77,9 +99,15 @@ Visual Assets Needed:
 
 Do this FIRST — audio determines timing.
 
+**Read the script from pre-production documents:**
+```bash
+cat docs/04-script.md
+```
+Extract the "전체 나레이션 스크립트 (연결)" section for TTS input. Use the audio plan from the script for music and SFX decisions.
+
 #### 2a. Voiceover (if needed)
 
-Write the narration script, then generate using the configured TTS provider.
+Use the narration text from `docs/04-script.md`, then generate using the configured TTS provider.
 
 **edge-tts:**
 ```bash
@@ -153,8 +181,16 @@ Use remotion-media generate_sfx:
 
 ### Phase 3: Source Visual Assets
 
+**Read the prompt sheet from pre-production documents:**
+```bash
+cat docs/06-prompt-sheet.md
+cat docs/06-style-guide.md
+cat docs/06-model-selection.md
+```
+Use the exact prompts, style keywords, negative prompts, and model assignments from the prompt sheet. Do NOT make up new prompts — the prompt sheet defines what to generate.
+
 #### 3a. Stock Footage (Pexels)
-For each scene needing stock footage:
+For each scene needing stock footage (as specified in the prompt sheet):
 ```
 Use Pexels searchVideos:
 - query: [descriptive keywords]
@@ -181,6 +217,12 @@ Use the configured image provider. See `/generate-image` command for provider-sp
 Use the configured video provider. See `/generate-clip` command for provider-specific workflows.
 
 ### Phase 4: Build the Remotion Composition
+
+**Read the storyboard for scene structure:**
+```bash
+cat docs/05-storyboard.md
+```
+Use the storyboard's shot timing, transitions, camera movements, and scene sequence to structure the Remotion composition. The storyboard is the source of truth for how scenes are arranged.
 
 Now write the React/TypeScript code:
 

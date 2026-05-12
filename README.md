@@ -1,256 +1,302 @@
 # Remotion Superpowers (Custom Fork)
 
-> AI 영상 제작 자동화 패키지 — Claude Code + Remotion 기반  
-> 원본: [DojoCodingLabs/remotion-superpowers](https://github.com/DojoCodingLabs/remotion-superpowers) (MIT)  
-> 수정: AI 모델 선택 시스템 추가 (무료/저비용/프리미엄 전환 가능)
+> AI 영상 제작 자동화 패키지 — Claude Code + Remotion 기반
+> 원본: [DojoCodingLabs/remotion-superpowers](https://github.com/DojoCodingLabs/remotion-superpowers) (MIT)
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](https://opensource.org/licenses/MIT)
 
 ---
 
-## 개요
+## 제작 의의
 
-텍스트 프롬프트 하나로 **기획 → 스크립트 → 이미지/영상 생성 → 음성 → 음악 → 자막 → 편집 → 렌더링**까지 전 과정을 자동화하는 Claude Code 플러그인입니다.
+### 왜 이 패키지를 만들었는가?
 
-**원본과의 차이점**: 원본은 KIE(유료 API)에 고정되어 있지만, 이 Fork는 기능별로 **무료/유료 AI 모델을 사용자가 선택**할 수 있습니다.
+기존 AI 영상 제작 도구들은 두 가지 문제가 있습니다:
 
----
+1. **프리프로덕션의 부재** — 대부분의 도구가 "프롬프트 입력 → 영상 출력"의 단순 구조입니다. 컨셉, 전략, 스크립트, 스토리보드 등 영상의 품질을 결정하는 사전 기획 단계가 없어서, AI가 추측한 결과물이 나옵니다.
 
-## 영상 제작 프로세스
+2. **질문 없이 진행** — 영상에 어떤 인물이 등장하는지, 어떤 복장인지, 어떤 카메라 앵글인지, 배경은 어떤 모습인지 사용자에게 물어보지 않습니다. 결과적으로 사용자의 비전이 아닌 AI의 추측으로 영상이 만들어집니다.
 
-### 전체 흐름도
+3. **납품 이후의 부재** — 렌더링이 끝나면 끝입니다. 다중 포맷 출력, 법적 검토, 접근성, SEO, 성과 측정 등 프로페셔널 영상 제작에 필수적인 후속 프로세스가 없습니다.
 
-```
-사용자 프롬프트 입력
-    |
-    v
-Phase 1. 기획 (Concept Breakdown)
-    |   - 장면 분할, 러닝타임 결정
-    |   - 오디오/비주얼 계획 수립
-    |   - 사용자 승인
-    v
-Phase 2. 오디오 생성 (Audio First)       ← 오디오가 전체 타이밍을 결정
-    |   - 2a. 나레이션 (TTS)
-    |   - 2b. 배경음악 (Music)
-    |   - 2c. 효과음 (SFX)
-    v
-Phase 3. 비주얼 에셋 확보 (Visual Assets)
-    |   - 3a. 스톡 영상 검색 (Pexels)
-    |   - 3b. AI 이미지 생성
-    |   - 3c. AI 영상 클립 생성
-    |   - 3d. 기존 영상 분석 (선택)
-    v
-Phase 4. Remotion 코드 생성 (Composition)
-    |   - React/TSX 컴포넌트 작성
-    |   - 장면별 시퀀스 구성
-    |   - 오디오 레이어 연결
-    |   - 애니메이션/전환효과 적용
-    v
-Phase 5. 자막 생성 (Captions)
-    |   - Whisper로 음성 → 텍스트 변환
-    |   - TikTok 스타일 애니메이션 자막
-    v
-Phase 6. 프리뷰 & 수정 (Preview)
-    |   - localhost:3000에서 실시간 확인
-    |   - 사용자 피드백 반영
-    v
-Phase 7. 렌더링 (Render)
-    |   - npx remotion render → MP4 출력
-    v
-Phase 8. AI 리뷰 (Review Loop)        ← 선택적 반복
-    |   - AI가 영상을 분석하고 피드백
-    |   - 수정 → 재렌더 → 리뷰 반복
-    |   - 8점 이상 달성 시 완료
-    v
-완성된 MP4 파일
-```
+### 이 패키지의 해결 방식
+
+**"묻고, 기록하고, 만든다 (Ask, Document, Produce)"**
+
+- 업계 표준 영상 제작 프로세스(광고 에이전시, 기업 영상, 모션그래픽)를 분석하여 **6단계 파이프라인**(기획→프리프로덕션→프로덕션→포스트프로덕션→납품→공개 후)을 구현
+- 매 단계마다 사용자에게 **구체적인 질문**을 하고, 모호한 답변에는 **선택지를 제시**하여 명확한 정보를 확보
+- 모든 의사결정을 **문서로 기록**하고, 승인 게이트를 통과한 문서만이 다음 단계의 입력이 됨
+- 기능별로 **무료/유료 AI 모델을 선택** 가능 (원본의 KIE 유료 API 종속에서 탈피)
+
+### 기존 패키지와의 차별점
+
+| 특징 | 원본 remotion-superpowers | 이 Fork |
+|------|--------------------------|---------|
+| 프리프로덕션 | 없음 | 6단계 (브리프~프롬프트 시트) + 8개 보강 커맨드 |
+| 질문 프로토콜 | 없음 | 모호함 감지 + 선택지 제시 + 점진적 깊이 |
+| 승인 게이트 | 없음 | Treatment, Script, Storyboard, Legal 4곳 |
+| AI 모델 선택 | KIE 고정 (유료) | 18개 프로바이더, 3단계 프리셋 (무료/$0부터) |
+| 포스트프로덕션 | AI 리뷰만 | QC, 접근성, 썸네일, SEO, 수정관리 |
+| 납품 | 없음 | 다중 포맷, 납품 패키지, 다국어, 법적 검토 |
+| 공개 후 | 없음 | 콘텐츠 재활용, 아카이빙 |
+| 커맨드 수 | 13개 | **39개** |
+| 업계 표준 커버율 | ~20% | **~85%** |
 
 ---
 
-## 프로세스별 업무 & AI 모델 매핑
+## 전체 프로세스 (6단계, 39개 커맨드)
 
-### Phase 1. 기획 (Concept Breakdown)
+### 프로세스 흐름도
 
-| 업무 | 담당 | 설명 |
-|------|------|------|
-| 프롬프트 분석 | Claude | 사용자 요청을 분석하여 영상 구조 도출 |
-| 장면 분할 | Claude | 시간대별 장면 구성 (Intro → 본문 → Outro) |
-| 오디오 계획 | Claude | 나레이션 여부, 음악 장르, 효과음 목록 |
-| 비주얼 계획 | Claude | 장면별 필요 에셋 (스톡/AI생성/기존) |
-| 사용자 승인 | 사용자 | 기획안 확인 후 진행 승인 |
+```
+=== Phase 1: 기획 (Planning) ===
+/project-scope       → docs/00-project-scope.md        범위/일정/예산/수정횟수
+/brand-kit           → docs/00-brand-guidelines.md      로고/색상/폰트/톤
+/select-models       → config.yaml                     AI 프로바이더 선택
 
-> 이 단계에서 외부 AI는 사용하지 않음. Claude가 스크립트와 구조를 생성.
+=== Phase 2: 프리프로덕션 (Pre-production) ===
+/receive-brief       → docs/01-client-brief.md          브리프 수령 (10개 질문)
+/creative-brief      → docs/02-creative-brief.md        전략 수립 (5개 질문)
+/concept-options     → docs/03-concepts.md              복수 컨셉 비교 [선택]
+/treatment           → docs/03-treatment.md             비주얼 방향 (6개 질문) ★승인
+/write-script        → docs/04-script.md                스크립트 (5개 질문) ★승인
+/fact-check          → docs/04-fact-check.md            데이터 정확성 검증 [선택]
+/storyboard          → docs/05-storyboard.md            장면별 Q&A (8개/씬) ★승인
+/style-frame         → docs/style-frames/               고퀄 디자인 시안 [선택]
+/animatic            → src/Animatic.tsx                 타이밍 프리뷰 [선택]
+/prompt-sheet        → docs/06-*.md (3개 파일)           AI 프롬프트+스타일+모델
+/legal-check         → docs/07-legal-checklist.md       법적 검토 ★승인
+
+=== Phase 3: 프로덕션 (Production) ===
+/create-video        → out/video.mp4                    전체 영상 파이프라인
+/create-short        → out/short.mp4                    숏폼 세로 영상
+/add-voiceover       → public/audio/voiceover.mp3       나레이션 생성
+/add-music           → public/audio/music.wav           배경음악 생성
+/generate-image      → public/images/                   AI 이미지 생성
+/generate-clip       → public/footage/                  AI 영상 클립 생성
+/find-footage        → public/footage/                  스톡 영상 검색
+/add-captions        → 자막 컴포넌트                      TikTok 스타일 자막
+/add-transitions     → 전환 효과                          장면 전환
+/transcribe          → SRT 파일                          음성→텍스트
+/audio-mix           → 오디오 최적화                       LUFS 표준 적용
+/color-grade         → 컬러 보정                          색감 일관성
+/analyze-footage     → 분석 결과                          기존 영상 AI 분석
+
+=== Phase 4: 포스트프로덕션 (Post-production) ===
+/review-video        → 리뷰 피드백                        AI 영상 리뷰
+/revision-log        → docs/08-revision-log.md          수정 라운드 관리
+/qc-check            → QC 리포트                         기술 품질 검증
+/accessibility       → 접근성 리포트                       WCAG 2.1 AA 검증
+/thumbnail           → out/thumbnails/                  썸네일 생성
+/seo-metadata        → docs/10-seo-metadata.md          SEO 메타데이터
+
+=== Phase 5: 납품 (Delivery) ===
+/export-multi        → 플랫폼별 MP4                       다중 포맷 출력
+/deliver             → docs/09-delivery-package.md       납품 패키지
+/localize            → 다국어 MP4 + SRT                   다국어 버전
+
+=== Phase 6: 공개 후 (Post-release) ===
+/repurpose           → out/repurposed/                  콘텐츠 재활용
+/archive             → docs/99-archive.md               프로젝트 아카이빙
+```
+
+### 승인 체크포인트 (★ 표시)
+
+| 체크포인트 | 커맨드 | 확인 내용 |
+|-----------|--------|----------|
+| 1차 승인 | `/treatment` | 비주얼 방향, 스타일, 색감, 음악 방향 |
+| 2차 승인 | `/write-script` | 나레이션 대사, 장면 구성, 전체 흐름 |
+| 3차 승인 | `/storyboard` | 장면별 구도, 인물, 카메라, 배경 |
+| 4차 승인 | `/legal-check` | AI 생성물 라이선스, 저작권, 크레딧 |
+
+승인 없이 다음 단계로 진행할 수 없습니다. 수정 요청 시 해당 단계만 수정 후 재승인합니다.
 
 ---
 
-### Phase 2. 오디오 생성 (Audio First)
+## 산출물 (문서 + 에셋 + 최종 파일)
 
-**왜 오디오가 먼저인가?** 나레이션 길이가 전체 영상의 러닝타임을 결정하기 때문.
+### 프리프로덕션 산출물 (14개 문서)
 
-#### 2a. 나레이션 (TTS)
+| # | 파일 | 커맨드 | 내용 |
+|---|------|--------|------|
+| 1 | `docs/00-project-scope.md` | `/project-scope` | 프로젝트 범위, 딜리버러블, 수정횟수 제한, 마일스톤 일정, 예산, 소유권 |
+| 2 | `docs/00-brand-guidelines.md` | `/brand-kit` | 로고 파일+배치 규칙, 색상 팔레트(HEX), 폰트, 톤 오브 보이스, 금지 요소, 브랜드 체크리스트 |
+| 3 | `docs/01-client-brief.md` | `/receive-brief` | 영상 목적, 타깃 시청자, 톤앤매너, 길이, 배포 채널, 예산, 일정, 필수 포함 요소, 제약 사항, 기존 소스 |
+| 4 | `docs/02-creative-brief.md` | `/creative-brief` | 커뮤니케이션 목표(인지/감정/행동), 타깃 프로파일, 핵심 메시지, 톤앤매너 상세, 경쟁 환경, KPI |
+| 5 | `docs/03-concepts.md` | `/concept-options` | 2~3개 크리에이티브 컨셉 비교표 (접근 방식, 비주얼, 톤, 제작 난이도, 비용 비교) |
+| 6 | `docs/03-treatment.md` | `/treatment` | 내러티브 구조, 비주얼 스타일, 색감/조명, 무드 레퍼런스, 음악/사운드, 캐릭터, 편집 스타일, AI 도구 계획 |
+| 7 | `docs/04-script.md` | `/write-script` | AV 포맷 장면별 스크립트 (화면 설명 + 나레이션 전문 + 자막 + 음악 지시 + 효과음), 전체 나레이션 연결 텍스트 |
+| 8 | `docs/04-fact-check.md` | `/fact-check` | 수치/통계/인용 출처 확인, 검증 결과, 수정 권고사항 |
+| 9 | `docs/05-storyboard.md` | `/storyboard` | 샷별 피사체/인물/동선/카메라/배경/전환/오디오/효과, 프리뷰 이미지, 전체 흐름 요약표 |
+| 10 | `docs/06-prompt-sheet.md` | `/prompt-sheet` | 샷별 AI 생성 프롬프트 (Positive/Negative), 카메라/스타일 키워드, 해상도, 모션 강도, 시드 |
+| 11 | `docs/06-style-guide.md` | `/prompt-sheet` | 공통 프롬프트 프리픽스, 색감/톤 키워드, 캐릭터 일관성 규칙, 글로벌 네거티브, 일관성 체크리스트 |
+| 12 | `docs/06-model-selection.md` | `/prompt-sheet` | 샷별 모델 배정표, 비용 예측 합계, 선택 근거 |
+| 13 | `docs/07-legal-checklist.md` | `/legal-check` | 프로바이더별 라이선스 검증, 크레딧 표시 필요 목록, 리스크 항목, 최종 판정 |
+| 14 | `docs/style-frames/` | `/style-frame` | 핵심 장면 3~5장의 고퀄리티 디자인 시안 이미지 |
 
-| 프로바이더 | 비용 | 한국어 | 음성 수 | 품질 |
-|-----------|------|--------|---------|------|
-| **edge-tts** | 무료 | O (9개 음성) | 300+ | 높음 |
-| **kokoro** | 무료 | X | 8 | 높음 |
-| **coqui-xtts** | 무료 | O | 무제한 (클로닝) | 높음 |
-| **ElevenLabs (KIE)** | 유료 | X | 7 | 매우 높음 |
-| **ElevenLabs (직접)** | 유료 | X | 전체 + 클로닝 | 매우 높음 |
+### 프로덕션 에셋
 
-```
-작동 방식 (edge-tts 예시):
-  스크립트 텍스트 → edge-tts CLI → public/audio/voiceover.mp3 → <Audio> 컴포넌트 연결
-```
+| 유형 | 경로 | 생성 커맨드 |
+|------|------|-----------|
+| 나레이션 | `public/audio/voiceover.mp3` | `/add-voiceover` |
+| 배경음악 | `public/audio/music.wav` | `/add-music` |
+| 효과음 | `public/audio/sfx/` | `/create-video` |
+| AI 이미지 | `public/images/` | `/generate-image` |
+| AI 영상 클립 | `public/footage/` | `/generate-clip` |
+| 스톡 영상 | `public/footage/` | `/find-footage` |
+| 브랜드 에셋 | `public/brand/` | `/brand-kit` |
 
-#### 2b. 배경음악 (Music)
+### 포스트프로덕션 산출물
 
-| 프로바이더 | 비용 | 생성 시간 | 품질 | GPU 필요 |
-|-----------|------|----------|------|---------|
-| **MusicGen (Meta)** | 무료 | 30초~2분 | 좋음 | 권장 |
-| **ACE-Step** | 무료 | 2초 (GPU) | 매우 좋음 | 필수 |
-| **Suno (KIE)** | 유료 | 빠름 | 최고 | 불필요 |
+| # | 파일 | 커맨드 | 내용 |
+|---|------|--------|------|
+| 1 | `docs/08-revision-log.md` | `/revision-log` | 수정 라운드별 피드백, 타임코드별 수정 내역, 버전 이력 |
+| 2 | `docs/10-seo-metadata.md` | `/seo-metadata` | YouTube/Instagram/TikTok/LinkedIn별 제목, 설명, 태그, 해시태그, 챕터 마커 |
+| 3 | `out/thumbnails/` | `/thumbnail` | 클릭 최적화 썸네일 (1280x720, 2MB 이하) |
+| 4 | QC 리포트 | `/qc-check` | 코덱, 해상도, FPS, LUFS, 파일 크기 검증 결과 |
+| 5 | 접근성 리포트 | `/accessibility` | 자막, 색상 대비, 깜빡임, 오디오 디스크립션 검증 |
 
-```
-작동 방식 (MusicGen 예시):
-  "calm lo-fi, no vocals" 프롬프트 → MusicGen 모델 → public/audio/music.wav → 페이드인/아웃 적용
-```
+### 최종 납품 산출물
 
-#### 2c. 효과음 (SFX)
-
-| 프로바이더 | 비용 | 방식 | 품질 |
-|-----------|------|------|------|
-| **Freesound** | 무료 | 라이브러리 검색 | 다양 |
-| **ElevenLabs (KIE)** | 유료 | AI 생성 | 높음 |
-
----
-
-### Phase 3. 비주얼 에셋 확보
-
-#### 3a. 스톡 영상 (Pexels)
-
-| 프로바이더 | 비용 | 해상도 | 제한 |
-|-----------|------|--------|------|
-| **Pexels** | 완전 무료 | HD/4K | 월 20,000 요청 |
-
-```
-작동 방식:
-  키워드 검색 → 결과 제시 → 선택 다운로드 → public/footage/ 저장
-```
-
-#### 3b. AI 이미지 생성
-
-| 프로바이더 | 비용 | 모델 | 품질 | GPU 필요 |
-|-----------|------|------|------|---------|
-| **Pixazo** | 무료 | FLUX Schnell | 좋음 | 불필요 |
-| **FLUX 로컬** | 무료 | FLUX.1 | 높음 | 12GB+ |
-| **Replicate** | ~$0.003/장 | FLUX Pro, Imagen 4, Ideogram v3 | 매우 높음 | 불필요 |
-| **KIE** | 유료 | Nano Banana Pro | 좋음 | 불필요 |
-
-```
-작동 방식 (Pixazo 예시):
-  이미지 프롬프트 → Pixazo API → base64 디코딩 → public/images/ 저장 → <Img> 컴포넌트
-```
-
-#### 3c. AI 영상 클립 생성
-
-| 프로바이더 | 비용 | 모델 | 클립 길이 | GPU 필요 |
-|-----------|------|------|----------|---------|
-| **Google AI Studio** | 무료 | Veo 3.1 | 3~8초 | 불필요 |
-| **CogVideo 로컬** | 무료 | CogVideoX-2B | 3~6초 | 16GB+ |
-| **Replicate** | ~$0.05/클립 | Wan 2.5, Kling 2.6 | 3~10초 | 불필요 |
-| **KIE** | 유료 | Veo 3.1 | 3~8초 | 불필요 |
-
-```
-작동 방식:
-  - Text-to-Video: 텍스트 프롬프트 → AI 모델 → MP4 클립
-  - Image-to-Video: 정지 이미지 → AI 모델 → 움직이는 영상 클립
-```
-
-#### 3d. 기존 영상 분석 (TwelveLabs)
-
-| 프로바이더 | 비용 | 기능 |
-|-----------|------|------|
-| **TwelveLabs** | 무료 티어 | 장면 탐지, 객체 인식, 시맨틱 검색, 요약 |
-
-```
-작동 방식:
-  기존 영상 업로드 → 인덱싱 → "커피 따르는 장면 찾아줘" → 타임스탬프 반환
-```
+| # | 파일 | 커맨드 | 내용 |
+|---|------|--------|------|
+| 1 | `out/video.mp4` | `/create-video` | 마스터 영상 (16:9) |
+| 2 | `out/video-vertical.mp4` | `/export-multi` | 세로 버전 (9:16) |
+| 3 | `out/video-square.mp4` | `/export-multi` | 정방형 버전 (1:1) |
+| 4 | `out/preview.gif` | `/export-multi` | GIF 프리뷰 |
+| 5 | `delivery/` | `/deliver` | 전체 납품 폴더 (영상+썸네일+자막+문서) |
+| 6 | `docs/09-delivery-package.md` | `/deliver` | 스펙시트, 에셋 크레딧, 사용 가이드라인 |
+| 7 | 다국어 버전 | `/localize` | 언어별 MP4 + SRT |
+| 8 | `docs/99-archive.md` | `/archive` | 프로젝트 회고, 에셋 출처 목록, 전체 구조 |
 
 ---
 
-### Phase 4. Remotion 코드 생성
+## 사용 방법
 
-| 업무 | 담당 | 설명 |
-|------|------|------|
-| 장면 컴포넌트 생성 | Claude | src/scenes/에 React/TSX 파일 생성 |
-| 메인 컴포지션 | Claude | 장면 시퀀스 + 타이밍 구성 |
-| 오디오 레이어 | Claude | 나레이션 + BGM + SFX 볼륨 조절 (더킹) |
-| 애니메이션 | Claude | interpolate(), spring() 기반 모션 |
-| 전환 효과 | Claude | fade, slide, wipe, flip, clockWipe |
+### 1. 설치
 
-```
-생성되는 코드 구조:
-  src/
-  ├── Root.tsx           ← 컴포지션 등록 (해상도, fps, 길이)
-  ├── MyVideo.tsx        ← 메인 영상 컴포지션
-  ├── scenes/
-  │   ├── Intro.tsx      ← 장면별 컴포넌트
-  │   ├── Scene1.tsx
-  │   └── Outro.tsx
-  └── components/
-      ├── AnimatedText.tsx
-      └── AudioLayer.tsx
-```
+#### 필수 요건
+- Claude Code (플러그인 지원 버전)
+- Node.js >= 18
+- Python 3 + pip (무료 프로바이더 사용 시)
 
-> 이 단계에서 외부 AI는 사용하지 않음. Claude가 Remotion React 코드를 직접 작성.
+#### 설치 순서
 
----
+```bash
+# 1. 레포 클론
+git clone https://github.com/Jeonyunjae/remotion-superpowers.git
+cd remotion-superpowers
 
-### Phase 5. 자막 생성
+# 2. Claude Code에서 플러그인 등록
+/plugin marketplace add .
+/plugin install remotion-superpowers
 
-| 프로바이더 | 비용 | 모델 | 속도 | GPU 필요 |
-|-----------|------|------|------|---------|
-| **faster-whisper** | 무료 | large-v3-turbo | 빠름 | 권장 |
-| **whisper-local** | 무료 | medium | 보통 | 권장 |
-| **KIE** | 유료 | Whisper API | 빠름 | 불필요 |
-
-```
-작동 방식:
-  나레이션 MP3 → Whisper → 단어별 타임스탬프 → SRT/JSON 생성
-  → @remotion/captions → TikTok 스타일 애니메이션 자막
+# 3. 설정 마법사 실행
+/setup
 ```
 
----
+#### 무료 프리셋 빠른 설치
 
-### Phase 6~7. 프리뷰 & 렌더링
+```bash
+pip install edge-tts faster-whisper transformers scipy soundfile torch
+```
 
-| 업무 | 명령어 | 설명 |
-|------|--------|------|
-| 실시간 프리뷰 | `npm run dev` | localhost:3000에서 영상 미리보기 |
-| 최종 렌더링 | `npx remotion render` | MP4 파일 출력 |
-| 고품질 렌더링 | `npx remotion render --crf 18` | 낮은 CRF = 높은 품질 |
+### 2. 프로젝트 시작 (처음부터 끝까지)
 
----
-
-### Phase 8. AI 리뷰 루프 (선택)
-
-| 평가 차원 | 분석 내용 |
-|-----------|----------|
-| 비주얼 품질 | 구도, 텍스트 가독성, 전환 부드러움, 빈 프레임 검사 |
-| 페이싱 | 장면 길이, 내러티브 흐름, 전환 타이밍 |
-| 오디오-비주얼 싱크 | 나레이션↔화면 일치, SFX 타이밍, BGM 적합성 |
-| 플랫폼 적합성 | 화면비, 세이프존, 길이, 캡션 유무 |
+#### Step 1: 기획
 
 ```
-평가 기준:
-  9~10점: 퍼블리싱 가능
-  7~8점: 약간의 수정 필요
-  5~6점: 눈에 띄는 이슈 다수
-  1~4점: 대폭 수정 필요
-
-  → 8점 이상 or CRITICAL/MAJOR 이슈 제로 시 완료
+/project-scope    ← 범위, 딜리버러블, 일정, 예산 정의
+/brand-kit        ← 로고, 색상, 폰트, 톤 가이드 입력
+/select-models    ← AI 프로바이더 선택 (free/budget/premium)
 ```
+
+#### Step 2: 프리프로덕션
+
+```
+/receive-brief    ← 영상 컨셉/요청 전달 → 10개 항목 질문 → 브리프 문서
+/creative-brief   ← 전략 질문 5개 → 크리에이티브 브리프
+/concept-options  ← [선택] 2~3개 컨셉 비교
+/treatment        ← 비주얼 질문 6개 → 트리트먼트 → ★승인
+/write-script     ← 스크립트 질문 5개 → AV 스크립트 → ★승인
+/fact-check       ← [선택] 데이터 정확성 검증
+/storyboard       ← 장면별 8개 질문 → 스토리보드 + 프리뷰 → ★승인
+/style-frame      ← [선택] 고퀄 디자인 시안 3~5장
+/animatic         ← [선택] 타이밍 프리뷰 영상
+/prompt-sheet     ← AI 프롬프트 시트 + 스타일 가이드 + 모델 선택
+/legal-check      ← 법적 검토 → ★승인
+```
+
+#### Step 3: 프로덕션
+
+```
+/create-video     ← 전체 제작 파이프라인 실행
+                     Phase 1: 컨셉 브레이크다운
+                     Phase 2: 오디오 에셋 생성 (나레이션 → 음악 → 효과음)
+                     Phase 3: 비주얼 에셋 확보 (스톡 → 이미지 → 영상 클립)
+                     Phase 4: Remotion 코드 생성 (장면 컴포넌트 + 시퀀싱)
+                     Phase 5: 프리뷰 및 수정
+                     Phase 6: 렌더링 → MP4
+
+/audio-mix        ← LUFS 표준 적용, 나레이션/BGM 밸런스
+/color-grade      ← AI 이미지 간 색감 일관성 보정
+```
+
+#### Step 4: 포스트프로덕션
+
+```
+/review-video     ← AI가 영상을 분석하고 피드백
+/revision-log     ← 수정 피드백 접수 → 수정 → 재렌더링
+/qc-check         ← 기술 사양 자동 검증 (코덱/LUFS/해상도)
+/accessibility    ← [선택] 접근성 검증 (WCAG 2.1 AA)
+/thumbnail        ← 썸네일 생성 (CTR 최적화)
+/seo-metadata     ← 제목/설명/태그/해시태그/챕터마커
+```
+
+#### Step 5: 납품
+
+```
+/export-multi     ← 플랫폼별 버전 생성 (가로/세로/정방형/GIF)
+/deliver          ← 납품 패키지 구성 (파일+스펙시트+크레딧+가이드)
+/localize         ← [선택] 다국어 버전 (자막 번역/TTS 더빙)
+```
+
+#### Step 6: 공개 후
+
+```
+/repurpose        ← 콘텐츠 재활용 (하이라이트/숏폼/GIF/블로그/오디오)
+/archive          ← 프로젝트 아카이빙 + 회고
+```
+
+### 3. 질문 프로토콜 (Questioning Protocol)
+
+이 패키지의 핵심 원칙은 **"추측하지 말고 질문하라"**입니다.
+
+#### 모호함 감지
+
+사용자의 답변에 다음이 포함되면 구체화 질문을 합니다:
+- "적당히", "알아서", "그냥", "대충", "아무거나", "상관없어"
+- "좋은 느낌으로", "예쁘게", "멋지게"
+- 5단어 미만의 짧은 답변
+
+#### 대응 방식
+
+```
+사용자: "분위기는 적당히 좋게 해줘"
+에이전트: "좀 더 구체적으로 정해볼게요. 다음 중 어떤 느낌이 가까운가요?
+  1. 밝고 에너지 넘치는 (광고, 홍보)
+  2. 차분하고 신뢰감 있는 (기업, 교육)
+  3. 긴장감 있고 시네마틱한 (다큐멘터리, 안전)
+  4. 따뜻하고 감성적인 (브랜딩, 스토리)"
+```
+
+#### "알아서 해줘" 대응
+
+사용자가 "알아서 해줘"라고 하면:
+1. 구체적인 제안을 2~3가지 제시
+2. 각 제안의 차이점 설명
+3. 하나를 선택하게 함
+4. 선택 없이 진행하지 않음
 
 ---
 
@@ -258,8 +304,8 @@ Phase 8. AI 리뷰 (Review Loop)        ← 선택적 반복
 
 ### 비용 프리셋 3종
 
-| 프리셋 | 월 비용 | TTS | 음악 | 이미지 | 영상 | 자막 | SFX |
-|--------|---------|-----|------|--------|------|------|-----|
+| 프리셋 | 비용 | TTS | 음악 | 이미지 | 영상 | 자막 | SFX |
+|--------|------|-----|------|--------|------|------|-----|
 | **free** | **$0** | edge-tts | MusicGen | Pixazo | Google AI Studio | faster-whisper | Freesound |
 | **budget** | ~$1~5/영상 | edge-tts | MusicGen | Replicate | Replicate | faster-whisper | Freesound |
 | **premium** | KIE 요금제 | ElevenLabs | Suno | KIE | Veo 3.1 | KIE Whisper | ElevenLabs |
@@ -267,11 +313,8 @@ Phase 8. AI 리뷰 (Review Loop)        ← 선택적 반복
 ### 프리셋 전환
 
 ```bash
-# Claude Code 내에서:
 /select-models          # 대화형 모델 선택
-
-# 또는 config.yaml 직접 수정:
-preset: free            # free | budget | premium | custom
+# 또는 config.yaml 직접 수정
 ```
 
 ### config.yaml 구조
@@ -333,12 +376,12 @@ models:
 
 ### 영상 생성
 
-| 프로바이더 | 비용 | 설치 | 클립 길이 | 특징 |
-|-----------|------|------|----------|------|
-| google-ai-studio | 무료 | API 키 (무료) | 3~8초 | Veo 3.1, 속도 제한 |
-| cogvideo-local | 무료 | `pip install diffusers` + GPU 16GB+ | 3~6초 | CogVideoX-2B |
-| replicate | ~$0.05/클립 | API 키만 | 3~10초 | Wan 2.5, Kling 2.6 |
-| kie | 유료 | API 키만 | 3~8초 | Veo 3.1 통합 |
+| 프로바이더 | 비용 | 클립 길이 | 설치 | 특징 |
+|-----------|------|----------|------|------|
+| google-ai-studio | 무료 | 3~8초 | API 키 (무료) | Veo 3.1, 속도 제한 |
+| cogvideo-local | 무료 | 3~6초 | GPU 16GB+ | CogVideoX-2B |
+| replicate | ~$0.05/클립 | 3~10초 | API 키만 | Wan 2.5, Kling 2.6 |
+| kie | 유료 | 3~8초 | API 키만 | Veo 3.1 통합 |
 
 ### 자막
 
@@ -370,77 +413,76 @@ models:
 
 ---
 
-## 설치
+## 커맨드 전체 목록 (39개)
 
-### 필수 요건
-- Claude Code (플러그인 지원 버전)
-- Node.js >= 18
-- Python 3 + pip (무료 프로바이더 사용 시)
+### Phase 1: 기획 (3개)
 
-### 설치 방법
+| 커맨드 | 설명 | 산출물 |
+|--------|------|--------|
+| `/project-scope` | 프로젝트 범위/일정/예산/수정횟수 정의 | `docs/00-project-scope.md` |
+| `/brand-kit` | 브랜드 가이드라인 입력 (로고/색상/폰트/톤) | `docs/00-brand-guidelines.md` |
+| `/select-models` | AI 프로바이더 선택 (대화형) | `config.yaml` |
 
-```bash
-# 1. 레포 클론
-git clone https://github.com/Jeonyunjae/remotion-superpowers.git
-cd remotion-superpowers
+### Phase 2: 프리프로덕션 (11개)
 
-# 2. Claude Code에서 플러그인 등록
-/plugin marketplace add .
-/plugin install remotion-superpowers
+| 커맨드 | 설명 | 산출물 | 승인 |
+|--------|------|--------|------|
+| `/receive-brief` | 클라이언트 브리프 수령 (10개 필수 질문) | `docs/01-client-brief.md` | - |
+| `/creative-brief` | 내부 크리에이티브 전략 (5개 전략 질문) | `docs/02-creative-brief.md` | - |
+| `/concept-options` | 복수 컨셉 비교 (2~3안) | `docs/03-concepts.md` | 선택 |
+| `/treatment` | 비주얼 방향 제안 (6개 비주얼 질문) | `docs/03-treatment.md` | **필수** |
+| `/write-script` | AV 스크립트 작성 (5개 방향 질문) | `docs/04-script.md` | **필수** |
+| `/fact-check` | 데이터/통계 정확성 검증 | `docs/04-fact-check.md` | 선택 |
+| `/storyboard` | 장면별 Q&A + AI 프리뷰 (씬당 8개 질문) | `docs/05-storyboard.md` | **필수** |
+| `/style-frame` | 고퀄리티 디자인 시안 (3~5장) | `docs/style-frames/` | 선택 |
+| `/animatic` | 타이밍 프리뷰 (움직이는 스토리보드) | `src/Animatic.tsx` | 선택 |
+| `/prompt-sheet` | AI 생성 프롬프트 + 스타일 가이드 + 모델 선택 | `docs/06-*.md` (3개) | - |
+| `/legal-check` | 법적 체크리스트 (라이선스/저작권/초상권) | `docs/07-legal-checklist.md` | **필수** |
 
-# 3. 설정 마법사 실행
-/setup
-```
+### Phase 3: 프로덕션 (13개)
 
-### 무료 프리셋 빠른 설치
+| 커맨드 | 설명 | 산출물 |
+|--------|------|--------|
+| `/create-video` | 전체 영상 제작 파이프라인 (6단계) | `out/video.mp4` |
+| `/create-short` | 숏폼 세로 영상 (TikTok/Reels/Shorts) | `out/short.mp4` |
+| `/add-voiceover` | 나레이션 생성 + 컴포지션 연결 | `public/audio/voiceover.mp3` |
+| `/add-music` | 배경음악 생성 + 페이드인/아웃 + 더킹 | `public/audio/music.wav` |
+| `/generate-image` | AI 이미지 생성 | `public/images/` |
+| `/generate-clip` | AI 영상 클립 생성 (T2V, I2V) | `public/footage/` |
+| `/find-footage` | Pexels 스톡 영상/사진 검색 + 다운로드 | `public/footage/` |
+| `/add-captions` | TikTok 스타일 애니메이션 자막 | 자막 컴포넌트 |
+| `/add-transitions` | 장면 전환 효과 (fade, slide, wipe, flip) | 전환 컴포넌트 |
+| `/transcribe` | 오디오/비디오 → 텍스트 변환 (SRT) | SRT 파일 |
+| `/audio-mix` | 오디오 믹싱 (LUFS 표준, 더킹, 밸런스) | 최적화된 오디오 |
+| `/color-grade` | 컬러 일관성 검사 + CSS 필터 보정 | 컬러 보정 |
+| `/analyze-footage` | 기존 영상 AI 분석 (장면탐지, 객체인식) | 분석 결과 |
 
-```bash
-# Python 패키지 설치 (무료 프로바이더용)
-pip install edge-tts faster-whisper transformers scipy soundfile torch
-```
+### Phase 4: 포스트프로덕션 (6개)
 
----
+| 커맨드 | 설명 | 산출물 |
+|--------|------|--------|
+| `/review-video` | AI 리뷰 (비주얼/페이싱/싱크/효과) | 리뷰 피드백 |
+| `/revision-log` | 수정 라운드 관리 (피드백 접수/추적/버전관리) | `docs/08-revision-log.md` |
+| `/qc-check` | 기술 QC (ffprobe 기반 코덱/LUFS/해상도 검증) | QC 리포트 |
+| `/accessibility` | 접근성 검증 (WCAG 2.1 AA, 자막, 색상대비, 깜빡임) | 접근성 리포트 |
+| `/thumbnail` | 썸네일 생성 (CTR 최적화, A/B 시안) | `out/thumbnails/` |
+| `/seo-metadata` | SEO 메타데이터 (제목/설명/태그/해시태그/챕터) | `docs/10-seo-metadata.md` |
 
-## 커맨드 목록 (14개)
+### Phase 5: 납품 (3개)
 
-### 제작
+| 커맨드 | 설명 | 산출물 |
+|--------|------|--------|
+| `/export-multi` | 다중 포맷 출력 (16:9, 9:16, 1:1, GIF) | 플랫폼별 MP4 |
+| `/deliver` | 최종 납품 패키지 (파일+스펙시트+크레딧+가이드) | `docs/09-delivery-package.md` + `delivery/` |
+| `/localize` | 다국어 버전 (자막 번역 + TTS 더빙) | 언어별 MP4 + SRT |
 
-| 커맨드 | 설명 |
-|--------|------|
-| `/setup` | 초기 설정 마법사 (의존성 + 모델 선택 + API 키) |
-| `/select-models` | **[신규]** AI 모델 프로바이더 선택 (무료/유료 전환) |
-| `/create-video` | 전체 영상 제작 파이프라인 (프롬프트 → MP4) |
-| `/create-short` | 숏폼 세로 영상 (TikTok/Reels/Shorts) |
+### Phase 6: 공개 후 (3개)
 
-### 에셋
-
-| 커맨드 | 설명 |
-|--------|------|
-| `/find-footage` | Pexels 스톡 영상/사진 검색 + 다운로드 |
-| `/generate-image` | AI 이미지 생성 (장면 배경, 썸네일 등) |
-| `/generate-clip` | AI 영상 클립 생성 (Text-to-Video, Image-to-Video) |
-
-### 오디오
-
-| 커맨드 | 설명 |
-|--------|------|
-| `/add-voiceover` | 나레이션 생성 + 컴포지션 연결 |
-| `/add-music` | 배경음악 생성 + 페이드인/아웃 + 더킹 |
-| `/transcribe` | 오디오/비디오 → 텍스트 변환 |
-
-### 편집
-
-| 커맨드 | 설명 |
-|--------|------|
-| `/add-captions` | TikTok 스타일 애니메이션 자막 |
-| `/add-transitions` | 장면 전환 효과 (fade, slide, wipe, flip) |
-
-### 분석
-
-| 커맨드 | 설명 |
-|--------|------|
-| `/analyze-footage` | 기존 영상 AI 분석 (장면탐지, 객체인식) |
-| `/review-video` | AI 리뷰 피드백 루프 (렌더→리뷰→수정 반복) |
+| 커맨드 | 설명 | 산출물 |
+|--------|------|--------|
+| `/repurpose` | 콘텐츠 재활용 (클립/GIF/블로그/오디오 추출) | `out/repurposed/` |
+| `/archive` | 프로젝트 아카이빙 + 회고 | `docs/99-archive.md` |
+| `/setup` | Remotion 프로젝트 초기 설정 | 프로젝트 스캐폴드 |
 
 ---
 
@@ -448,82 +490,68 @@ pip install edge-tts faster-whisper transformers scipy soundfile torch
 
 ```
 remotion-superpowers/
-├── config.yaml                          [신규] AI 모델 선택 설정
+├── config.yaml                          AI 모델 선택 설정
 ├── .mcp.json                            5개 MCP 서버 설정
 ├── .claude-plugin/
 │   ├── plugin.json                      플러그인 메타데이터
 │   └── marketplace.json                 마켓플레이스 등록 정보
-├── commands/                            14개 슬래시 커맨드
-│   ├── setup.md                         초기 설정 마법사
-│   ├── select-models.md                 [신규] 모델 선택
-│   ├── create-video.md                  전체 영상 파이프라인
-│   ├── create-short.md                  숏폼 영상
-│   ├── find-footage.md                  스톡 영상 검색
-│   ├── generate-image.md                AI 이미지 생성
-│   ├── generate-clip.md                 AI 영상 생성
-│   ├── add-voiceover.md                 나레이션 생성
-│   ├── add-music.md                     배경음악 생성
-│   ├── add-captions.md                  자막 생성
-│   ├── add-transitions.md               전환 효과
-│   ├── transcribe.md                    음성→텍스트
-│   ├── analyze-footage.md               영상 분석
-│   └── review-video.md                  AI 리뷰 루프
+├── commands/                            39개 슬래시 커맨드
+│   ├── project-scope.md                 기획: 프로젝트 범위
+│   ├── brand-kit.md                     기획: 브랜드 가이드라인
+│   ├── select-models.md                 기획: AI 모델 선택
+│   ├── receive-brief.md                 프리프로덕션: 브리프 수령
+│   ├── creative-brief.md                프리프로덕션: 크리에이티브 브리프
+│   ├── concept-options.md               프리프로덕션: 복수 컨셉 비교
+│   ├── treatment.md                     프리프로덕션: 트리트먼트
+│   ├── write-script.md                  프리프로덕션: 스크립트
+│   ├── fact-check.md                    프리프로덕션: 팩트체크
+│   ├── storyboard.md                    프리프로덕션: 스토리보드
+│   ├── style-frame.md                   프리프로덕션: 스타일프레임
+│   ├── animatic.md                      프리프로덕션: 애니매틱
+│   ├── prompt-sheet.md                  프리프로덕션: 프롬프트 시트
+│   ├── legal-check.md                   프리프로덕션: 법적 검토
+│   ├── create-video.md                  프로덕션: 전체 영상
+│   ├── create-short.md                  프로덕션: 숏폼 영상
+│   ├── add-voiceover.md                 프로덕션: 나레이션
+│   ├── add-music.md                     프로덕션: 배경음악
+│   ├── generate-image.md                프로덕션: AI 이미지
+│   ├── generate-clip.md                 프로덕션: AI 영상 클립
+│   ├── find-footage.md                  프로덕션: 스톡 영상
+│   ├── add-captions.md                  프로덕션: 자막
+│   ├── add-transitions.md               프로덕션: 전환 효과
+│   ├── transcribe.md                    프로덕션: 음성→텍스트
+│   ├── audio-mix.md                     프로덕션: 오디오 믹싱
+│   ├── color-grade.md                   프로덕션: 컬러 보정
+│   ├── analyze-footage.md               프로덕션: 영상 분석
+│   ├── review-video.md                  포스트: AI 리뷰
+│   ├── revision-log.md                  포스트: 수정 관리
+│   ├── qc-check.md                      포스트: QC 검증
+│   ├── accessibility.md                 포스트: 접근성
+│   ├── thumbnail.md                     포스트: 썸네일
+│   ├── seo-metadata.md                  포스트: SEO
+│   ├── export-multi.md                  납품: 다중 포맷
+│   ├── deliver.md                       납품: 납품 패키지
+│   ├── localize.md                      납품: 다국어
+│   ├── repurpose.md                     공개 후: 재활용
+│   ├── archive.md                       공개 후: 아카이빙
+│   └── setup.md                         초기 설정
 ├── agents/                              3개 AI 에이전트
-│   ├── video-director.md                전체 파이프라인 오케스트레이션
-│   ├── media-scout.md                   미디어 에셋 탐색/평가
-│   └── post-producer.md                 리뷰/반복 개선
+│   ├── video-director.md
+│   ├── media-scout.md
+│   └── post-producer.md
 ├── skills/
-│   ├── remotion-production/
-│   │   ├── SKILL.md                     프로덕션 워크플로우 총괄
-│   │   └── rules/                       19개 프로덕션 규칙
-│   │       ├── model-providers.md       [신규] 프로바이더 상세 가이드
-│   │       ├── production-pipeline.md   E2E 파이프라인
-│   │       ├── audio-integration.md     오디오 통합
-│   │       ├── voiceover-sync.md        나레이션 싱크
-│   │       ├── music-scoring.md         음악 스코어링
-│   │       ├── stock-footage-workflow.md 스톡 영상 워크플로우
-│   │       ├── video-analysis.md        영상 분석
-│   │       ├── captions-workflow.md     자막 워크플로우
-│   │       ├── animation-presets.md     애니메이션 프리셋
-│   │       ├── 3d-content.md            3D 콘텐츠
-│   │       ├── data-visualization.md    데이터 시각화
-│   │       ├── visual-effects.md        비주얼 이펙트
-│   │       ├── ci-rendering.md          CI/CD 렌더링
-│   │       ├── replicate-models.md      Replicate 모델
-│   │       ├── image-generation.md      이미지 생성
-│   │       ├── video-generation.md      영상 생성
-│   │       ├── sound-effects.md         효과음
-│   │       ├── elevenlabs-advanced.md   ElevenLabs 고급
-│   │       └── asset-management.md      에셋 관리
-│   └── setup-guide/
-│       ├── SKILL.md
-│       └── rules/api-keys-setup.md
-├── hooks/hooks.json                     Pre/Post 도구 사용 훅
+│   └── remotion-production/
+│       ├── SKILL.md                     프로덕션 워크플로우 총괄
+│       └── rules/                       20개 프로덕션 규칙
+│           ├── questioning-protocol.md  질문 프로토콜
+│           ├── model-providers.md       프로바이더 가이드
+│           ├── production-pipeline.md   E2E 파이프라인
+│           └── ... (17개 추가 규칙)
+├── hooks/hooks.json
 ├── scripts/
-│   ├── setup-check.sh
-│   ├── check-mcp-server.sh
-│   └── post-tool-note.sh
 ├── LICENSE                              MIT
 └── README.md                            이 파일
 ```
-
----
-
-## 원본 대비 변경사항
-
-| 변경 유형 | 파일 | 내용 |
-|----------|------|------|
-| 신규 | `config.yaml` | AI 모델 선택 설정 파일 (프리셋 3종 + 커스텀) |
-| 신규 | `commands/select-models.md` | 대화형 모델 선택 커맨드 |
-| 신규 | `skills/.../model-providers.md` | 18개 프로바이더 상세 가이드 |
-| 수정 | `commands/add-voiceover.md` | edge-tts, kokoro, coqui-xtts 무료 옵션 추가 |
-| 수정 | `commands/add-music.md` | MusicGen, ACE-Step 무료 옵션 추가 |
-| 수정 | `commands/generate-image.md` | Pixazo, FLUX 로컬 무료 옵션 추가 |
-| 수정 | `commands/generate-clip.md` | Google AI Studio, CogVideo 무료 옵션 추가 |
-| 수정 | `commands/transcribe.md` | faster-whisper 무료 옵션 추가 |
-| 수정 | `commands/create-video.md` | config.yaml 기반 프로바이더 분기 |
-| 수정 | `commands/setup.md` | 모델 선택 단계 + 프리셋별 설치 |
-| 수정 | `skills/.../SKILL.md` | 모델 프로바이더 시스템 섹션 추가 |
 
 ---
 
@@ -531,12 +559,12 @@ remotion-superpowers/
 
 MIT License — 원본과 동일. 자유롭게 사용, 수정, 배포 가능.
 
-단, AI 생성물(음악, 영상, 이미지)의 상업적 사용은 각 AI 서비스의 이용약관을 별도 확인해야 합니다.
+단, AI 생성물(음악, 영상, 이미지)의 상업적 사용은 각 AI 서비스의 이용약관을 별도 확인해야 합니다. `/legal-check` 커맨드로 프로바이더별 라이선스를 검증할 수 있습니다.
 
 ---
 
 ## 크레딧
 
 - 원본: [DojoCodingLabs/remotion-superpowers](https://github.com/DojoCodingLabs/remotion-superpowers) by Juan C. Guerrero
-- Fork 수정: AI 모델 선택 시스템 추가
+- Fork 수정: 6단계 프로덕션 파이프라인, AI 모델 선택 시스템, 질문 프로토콜
 - 영상 엔진: [Remotion](https://remotion.dev) — React 기반 프로그래밍 영상 제작

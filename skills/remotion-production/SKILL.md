@@ -44,6 +44,129 @@ Read `rules/model-providers.md` for full setup instructions, code examples, and 
 
 To add a new provider: update `rules/model-providers.md`, add the provider option to relevant command files, update `commands/select-models.md`, and add comments to `config.yaml`.
 
+## Full Production Pipeline (39 Commands)
+
+The complete video production pipeline covers 6 phases: Planning → Pre-production → Production → Post-production → Delivery → Post-release.
+
+### Phase 1: Planning (기획)
+
+| # | Command | Description | Output | Approval |
+|---|---------|-------------|--------|----------|
+| 1 | `/project-scope` | Define scope, deliverables, revisions, timeline, budget | `docs/00-project-scope.md` | - |
+| 2 | `/brand-kit` | Import brand guidelines (logo, colors, fonts, tone) | `docs/00-brand-guidelines.md` | - |
+| 3 | `/select-models` | Choose AI providers per function (free/paid) | `config.yaml` | - |
+
+### Phase 2: Pre-production (프리프로덕션)
+
+| # | Command | Description | Output | Approval |
+|---|---------|-------------|--------|----------|
+| 4 | `/receive-brief` | Receive and analyze client brief (10 questions) | `docs/01-client-brief.md` | - |
+| 5 | `/creative-brief` | Create internal creative strategy (5 questions) | `docs/02-creative-brief.md` | - |
+| 6 | `/concept-options` | Develop 2-3 creative concepts for comparison | `docs/03-concepts.md` | Optional |
+| 7 | `/treatment` | Propose visual direction and style (6 questions) | `docs/03-treatment.md` | **Required** |
+| 8 | `/write-script` | Write scene-by-scene AV script (5 questions) | `docs/04-script.md` | **Required** |
+| 9 | `/fact-check` | Verify data accuracy in the script | `docs/04-fact-check.md` | Optional |
+| 10 | `/storyboard` | Detail every shot with user Q&A (8 per scene) | `docs/05-storyboard.md` + previews | **Required** |
+| 11 | `/style-frame` | Generate high-quality design reference frames | `docs/style-frames/` | Optional |
+| 12 | `/animatic` | Create rough animated preview with timing | `src/Animatic.tsx` | Optional |
+| 13 | `/prompt-sheet` | Convert storyboard to AI prompts | `docs/06-*.md` (3 files) | - |
+| 14 | `/legal-check` | Verify legal compliance for all assets | `docs/07-legal-checklist.md` | **Required** |
+
+### Phase 3: Production (프로덕션)
+
+| # | Command | Description | Output |
+|---|---------|-------------|--------|
+| 15 | `/create-video` | Full production pipeline (6 sub-phases) | Remotion project + `out/video.mp4` |
+| 16 | `/create-short` | Vertical short-form video pipeline | 9:16 MP4 |
+| 17 | `/add-voiceover` | Generate and add TTS narration | `public/audio/voiceover.mp3` |
+| 18 | `/add-music` | Generate and add background music | `public/audio/music.wav` |
+| 19 | `/generate-image` | Generate AI images for scenes | `public/images/` |
+| 20 | `/generate-clip` | Generate AI video clips | `public/footage/` |
+| 21 | `/find-footage` | Search and download stock footage | `public/footage/` |
+| 22 | `/add-captions` | Add TikTok-style animated captions | Caption component |
+| 23 | `/add-transitions` | Add scene transitions | Transition effects |
+| 24 | `/transcribe` | Transcribe audio to SRT | SRT file |
+| 25 | `/audio-mix` | Apply LUFS standards, ducking, balance | Optimized audio |
+| 26 | `/color-grade` | Check and fix color consistency | Color correction |
+| 27 | `/analyze-footage` | Analyze existing video with AI | Analysis report |
+
+### Phase 4: Post-production (포스트프로덕션)
+
+| # | Command | Description | Output |
+|---|---------|-------------|--------|
+| 28 | `/review-video` | AI-powered video review (4 dimensions) | Review feedback |
+| 29 | `/revision-log` | Track feedback rounds and version history | `docs/08-revision-log.md` |
+| 30 | `/qc-check` | Technical QC (codec, LUFS, file size) | QC report |
+| 31 | `/accessibility` | WCAG 2.1 AA compliance verification | Accessibility report |
+| 32 | `/thumbnail` | Generate click-optimized thumbnails | `out/thumbnails/` |
+| 33 | `/seo-metadata` | Generate titles, tags, descriptions | `docs/10-seo-metadata.md` |
+
+### Phase 5: Delivery (납품)
+
+| # | Command | Description | Output |
+|---|---------|-------------|--------|
+| 34 | `/export-multi` | Export to multiple platform formats | Platform-specific MP4s |
+| 35 | `/deliver` | Create final delivery package | `docs/09-delivery-package.md` + `delivery/` |
+| 36 | `/localize` | Create multilingual versions | Localized MP4s + SRTs |
+
+### Phase 6: Post-release (공개 후)
+
+| # | Command | Description | Output |
+|---|---------|-------------|--------|
+| 37 | `/repurpose` | Create derivative content (clips, GIF, blog) | `out/repurposed/` |
+| 38 | `/archive` | Archive project with retrospective | `docs/99-archive.md` |
+| 39 | `/setup` | Initialize Remotion project | Project scaffold |
+
+### Document Flow
+
+```
+=== Planning ===
+/project-scope → /brand-kit → /select-models
+
+=== Pre-production ===
+→ /receive-brief → /creative-brief → /concept-options (optional)
+→ /treatment (approval) → /write-script (approval) → /fact-check (optional)
+→ /storyboard (approval) → /style-frame (optional) → /animatic (optional)
+→ /prompt-sheet → /legal-check (approval)
+
+=== Production ===
+→ /create-video (audio → visuals → composition → preview → render)
+→ /audio-mix → /color-grade
+
+=== Post-production ===
+→ /review-video → /revision-log → /qc-check → /accessibility
+→ /thumbnail → /seo-metadata
+
+=== Delivery ===
+→ /export-multi → /deliver → /localize (optional)
+
+=== Post-release ===
+→ /repurpose → /archive
+```
+
+### Key Principle: Ask, Don't Assume
+
+All commands follow the **Questioning Protocol** (`rules/questioning-protocol.md`):
+
+1. **Never assume** — ask for every piece of missing information
+2. **Detect ambiguity** — vague answers like "알아서", "적당히" trigger follow-up questions with concrete options
+3. **Progressive depth** — start with big-picture questions, then drill into details
+4. **Always offer choices** — present 2-4 concrete options when the user is unsure
+5. **Validate completeness** — verify all required fields before writing any document
+
+The agent keeps asking until it has production-ready information.
+
+### Production Integration
+
+`/create-video` and `/create-short` check for pre-production documents before starting:
+- `docs/04-script.md` for narration text (Phase 2: Audio)
+- `docs/06-prompt-sheet.md` for AI generation prompts (Phase 3: Visuals)
+- `docs/05-storyboard.md` for scene structure (Phase 4: Composition)
+- `docs/00-brand-guidelines.md` for brand consistency (if exists)
+- `docs/07-legal-checklist.md` for legal compliance (if exists)
+
+---
+
 ## Available MCP Tools
 
 You have access to these MCP servers for media production (used by paid/cloud providers):
@@ -105,6 +228,7 @@ Read individual rule files for detailed workflows:
 - `rules/elevenlabs-advanced.md` — Voice cloning, custom TTS parameters, multi-voice scripts
 - `rules/asset-management.md` — File organization, naming conventions, staticFile() reference
 - `rules/model-providers.md` — All supported providers, setup instructions, usage examples, cost/quality comparison
+- `rules/questioning-protocol.md` — Ambiguity detection, follow-up questioning, "알아서 해줘" handling
 
 ## Key Principles
 
