@@ -236,6 +236,7 @@ Read individual rule files for detailed workflows:
 - `rules/model-providers.md` — All supported providers, setup instructions, usage examples, cost/quality comparison
 - `rules/questioning-protocol.md` — Ambiguity detection, follow-up questioning, "알아서 해줘" handling
 - `rules/progress-tracking.md` — **[공통 규칙]** 모든 커맨드가 산출물 저장 후 docs/00-progress.md 자동 갱신
+- `rules/agent-orchestration.md` — **[아키텍처]** 서브에이전트 병렬 처리 구조 (media-scout, post-producer)
 
 ## Key Principles
 

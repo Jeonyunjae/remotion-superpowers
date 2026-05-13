@@ -1,13 +1,15 @@
 ---
 name: create-short
-description: Create a short-form vertical video (TikTok, Instagram Reels, YouTube Shorts). Optimized 9:16 pipeline with auto-captions, hook-first structure, and background music mood selection.
+description: Short-form vertical video pipeline with sub-agent parallelization. Same orchestrator pattern as /create-video but optimized for 9:16, 15-60s, with mandatory captions.
 ---
 
-# Create Short — Vertical Short-Form Video Pipeline
+# Create Short — 숏폼 세로 영상 파이프라인
 
-You are creating a short-form vertical video optimized for TikTok, Instagram Reels, or YouTube Shorts.
+`/create-video`와 동일한 **서브에이전트 병렬 구조**로 진행하되, 숏폼 특화 설정을 적용합니다.
 
-**Load the `remotion-production` skill** for production patterns, plus `remotion-best-practices` for Remotion-specific code.
+**참조 규칙:**
+- `rules/agent-orchestration.md` — 서브에이전트 병렬 처리 구조
+- `rules/progress-tracking.md` — 진행 상황 자동 갱신
 
 ## Pre-production Document Check
 
@@ -30,6 +32,17 @@ If ANY document is missing:
 > Then run `/create-short` again."
 
 **DO NOT proceed without complete documentation. The storyboard defines what to produce.**
+
+## 병렬 구조 (`/create-video`와 동일)
+
+```
+Phase 2: 오디오 → 나레이션 먼저(순차) → 음악+효과음(병렬)
+Phase 3: 비주얼 → media-scout 위임 (portrait 방향 강제)
+Phase 5: 자막 → /add-captions 자동 포함 (숏폼 필수)
+Phase 7: 검증 → post-producer 위임 (리뷰+QC+접근성 병렬)
+```
+
+media-scout 호출 시 `orientation: portrait` 강제, post-producer 호출 시 숏폼 기준(9:16, 15-60초) 적용.
 
 ## Key Differences from `/create-video`
 

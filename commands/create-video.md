@@ -1,274 +1,204 @@
 ---
 name: create-video
-description: Full video production pipeline — from a text prompt to a rendered MP4 with voiceover, music, sound effects, stock footage, and motion graphics. The flagship command of Remotion Superpowers.
+description: Full video production pipeline with sub-agent parallelization. Orchestrates media-scout (visual assets) and post-producer (review/QC) as sub-agents for faster production.
 ---
 
-# Create Video — Full Production Pipeline
+# Create Video — 전체 영상 제작 파이프라인
 
-You are the Video Director. The user wants to create a complete video. Follow this pipeline step by step.
+오케스트레이터로서 전체 파이프라인을 총괄합니다. 비주얼 에셋 수집은 **media-scout**에, 포스트 검증은 **post-producer**에 위임하여 병렬로 처리합니다.
 
-**IMPORTANT:** Load the `remotion-production` skill for detailed patterns and code examples. Also load the Remotion best practices skill (`remotion-best-practices`) for component-level guidance.
+**참조 규칙:**
+- `rules/agent-orchestration.md` — 서브에이전트 병렬 처리 구조
+- `rules/progress-tracking.md` — 진행 상황 자동 갱신
+- `rules/production-pipeline.md` — E2E 파이프라인 상세
+- `rules/model-providers.md` — 프로바이더별 사용법
 
-## Pre-production Document Check
+## 파이프라인 구조
 
-Before any production begins, verify these pre-production documents exist and are approved:
+```
+Phase 1: 문서 확인                    [순차 — 직접]
+Phase 2: 오디오 생성                  [순차→병렬 — 직접]
+Phase 3: 비주얼 에셋 수집             [병렬 — media-scout 위임]  ←── 핵심
+Phase 4: Remotion 컴포지션 작성       [순차 — 직접]
+Phase 5: 프리뷰 + 피드백              [순차 — 직접]
+Phase 6: 렌더링                      [순차 — 직접]
+Phase 7: 포스트프로덕션 검증           [병렬 — post-producer 위임]  ←── 핵심
+Phase 8: 수정 루프                    [순차 — 직접]
+```
+
+---
+
+## Phase 1: 문서 확인 + 설정 [순차 — 직접]
+
+### 프리프로덕션 문서 체크
 
 ```bash
 ls docs/01-client-brief.md docs/02-creative-brief.md docs/03-treatment.md docs/04-script.md docs/05-storyboard.md docs/06-prompt-sheet.md 2>&1
 ```
 
-1. Check for `docs/01-client-brief.md` — if missing, run `/receive-brief` first
-2. Check for `docs/02-creative-brief.md` — if missing, run `/creative-brief` first
-3. Check for `docs/03-treatment.md` — if missing, run `/treatment` first
-4. Check for `docs/04-script.md` — if missing, run `/write-script` first
-5. Check for `docs/05-storyboard.md` — if missing, run `/storyboard` first
-6. Check for `docs/06-prompt-sheet.md` — if missing, run `/prompt-sheet` first
+**하나라도 없으면 중단:**
+> "프리프로덕션 문서가 미완성입니다. 다음 커맨드를 먼저 실행해주세요:
+> `/receive-brief` → `/creative-brief` → `/treatment` → `/write-script` → `/storyboard` → `/prompt-sheet`"
 
-If ANY document is missing:
-> "Pre-production documents are incomplete. Run these commands first:
-> `/receive-brief` → `/creative-brief` → `/treatment` → `/write-script` → `/storyboard` → `/prompt-sheet`
-> Then run `/create-video` again."
-
-**DO NOT proceed without complete documentation. The storyboard defines what to produce.**
-
-## Pre-flight Check
-
-Before starting, verify:
-1. You're in a Remotion project (has `remotion.config.ts`)
-2. MCP servers are available — check with `/mcp` if unsure
-3. If anything is missing, suggest running `/setup`
-
-### Config Check
-
-Read `config.yaml` to determine which providers to use for each phase:
+### 설정 확인
 
 ```bash
 cat config.yaml 2>/dev/null
 ```
 
-Identify the configured providers:
-- **TTS provider:** [from config — e.g. edge-tts, elevenlabs]
-- **Music provider:** [from config — e.g. musicgen, suno]
-- **Image provider:** [from config — e.g. pixazo, replicate, kie]
-- **Video provider:** [from config — e.g. google-ai-studio, replicate, kie]
-- **Subtitle provider:** [from config — e.g. faster-whisper, kie]
-- **SFX provider:** [from config — e.g. freesound, elevenlabs]
+프로바이더 확인: TTS, Music, Image, Video, Subtitle, SFX 각각 어떤 프로바이더인지 파악.
+없으면 `/select-models` 실행 안내 또는 무료 기본값 사용.
 
-If `config.yaml` doesn't exist, tell the user:
-> "No model configuration found. Would you like to run `/select-models` to choose your providers (controls cost and quality), or proceed with free defaults?"
+---
 
-**Free defaults:** edge-tts, musicgen, pixazo, google-ai-studio, faster-whisper, freesound.
+## Phase 2: 오디오 생성 [순차→병렬 — 직접]
 
-See the `model-providers` rule for detailed usage of each provider.
+### 2a. 나레이션 생성 (순차 — 반드시 먼저)
 
-## Pipeline
+`docs/04-script.md`에서 "전체 나레이션 스크립트 (연결)" 섹션 추출.
 
-### Phase 1: Concept Breakdown
-
-Ask the user to describe their video (or use their existing description). Then break it down:
-
-```
-Video Production Plan
-
-Duration: [X seconds]
-Aspect Ratio: [16:9 / 9:16 / 1:1]
-Style: [describe visual style]
-Providers: [preset name or "custom"]
-
-Scenes:
-1. [0:00-0:05] Intro — [description]
-2. [0:05-0:15] Main content — [description]  
-3. [0:15-0:25] Supporting content — [description]
-4. [0:25-0:30] Outro/CTA — [description]
-
-Audio Plan:
-- Voiceover: [yes/no] — [voice style] (via [TTS provider])
-- Music: [genre/mood description] (via [music provider])
-- Sound Effects: [list any needed SFX] (via [SFX provider])
-
-Visual Assets Needed:
-- Stock footage: [list queries] (via Pexels)
-- Generated images: [list descriptions] (via [image provider])
-- Generated clips: [list descriptions] (via [video provider])
-- Existing footage: [list files to analyze]
-```
-
-**Present this plan to the user and get approval before proceeding.**
-
-### Phase 2: Generate Audio Assets
-
-Do this FIRST — audio determines timing.
-
-**Read the script from pre-production documents:**
-```bash
-cat docs/04-script.md
-```
-Extract the "전체 나레이션 스크립트 (연결)" section for TTS input. Use the audio plan from the script for music and SFX decisions.
-
-#### 2a. Voiceover (if needed)
-
-Use the narration text from `docs/04-script.md`, then generate using the configured TTS provider.
+config.yaml의 TTS 프로바이더에 따라 생성:
 
 **edge-tts:**
 ```bash
-edge-tts --text "[full narration script]" --voice "[voice]" --write-media public/audio/voiceover.mp3
+edge-tts --text "[나레이션 전문]" --voice "[voice]" --write-media public/audio/voiceover.mp3
 ffprobe -v error -show_entries format=duration -of csv=p=0 public/audio/voiceover.mp3
 ```
 
-**kokoro:**
-```bash
-python3 -c "
-from kokoro import KPipeline
-import soundfile as sf
-pipeline = KPipeline(lang_code='a')
-audio, sr = pipeline('[script]', voice='[voice]')
-sf.write('public/audio/voiceover.wav', audio, sr)
-print(f'Duration: {len(audio)/sr:.2f}s')
-"
-```
-
 **elevenlabs (KIE):**
 ```
-Use remotion-media generate_tts:
-- text: [full narration script]
-- voice: [chosen voice name]
-- project_path: [project root path]
+remotion-media generate_tts:
+  text: [나레이션 전문]
+  voice: [선택된 목소리]
+  project_path: [프로젝트 루트]
 ```
 
-**Record the returned duration — this sets the video length.**
+**나레이션 duration을 기록 — 이것이 전체 영상 길이의 기준.**
 
-#### 2b. Background Music
+### 2b + 2c. 배경음악 + 효과음 (병렬)
 
-Generate using the configured music provider.
+나레이션 duration이 확정되면, 음악과 효과음을 **동시에** 생성합니다:
 
-**musicgen:**
-```bash
-python3 << 'PYEOF'
-from transformers import AutoProcessor, MusicgenForConditionalGeneration
-import scipy.io.wavfile
-processor = AutoProcessor.from_pretrained("facebook/musicgen-small")
-model = MusicgenForConditionalGeneration.from_pretrained("facebook/musicgen-small")
-inputs = processor(text=["[music description, no vocals]"], padding=True, return_tensors="pt")
-audio = model.generate(**inputs, max_new_tokens=1536)
-scipy.io.wavfile.write("public/audio/music.wav", model.config.audio_encoder.sampling_rate, audio[0,0].cpu().numpy())
-PYEOF
+**배경음악** (config.yaml 프로바이더):
+```
+musicgen / suno 등으로 생성
+prompt에 반드시 "no vocals" 포함
+duration: 나레이션 길이에 맞춤
+→ public/audio/music.wav
 ```
 
-**suno (KIE):**
+**효과음** (config.yaml 프로바이더):
 ```
-Use remotion-media generate_music:
-- prompt: [music description, always include "no vocals"]
-- project_path: [project root path]
-```
-
-#### 2c. Sound Effects (if needed)
-
-Generate using the configured SFX provider.
-
-**freesound:**
-Search https://freesound.org for matching effects and download to `public/audio/sfx/`:
-```bash
-curl -o public/audio/sfx/[effect-name].mp3 "[freesound_preview_url]"
+freesound 검색 또는 elevenlabs 생성
+docs/04-script.md의 효과음 지시 참조
+→ public/audio/sfx/[effect-name].mp3
 ```
 
-**elevenlabs (KIE):**
-```
-Use remotion-media generate_sfx:
-- text: [sound description]
-- duration_seconds: [length]
-- project_path: [project root path]
-```
+---
 
-### Phase 3: Source Visual Assets
+## Phase 3: 비주얼 에셋 수집 [병렬 — media-scout 위임]
 
-**Read the prompt sheet from pre-production documents:**
-```bash
-cat docs/06-prompt-sheet.md
-cat docs/06-style-guide.md
-cat docs/06-model-selection.md
-```
-Use the exact prompts, style keywords, negative prompts, and model assignments from the prompt sheet. Do NOT make up new prompts — the prompt sheet defines what to generate.
+**media-scout 서브에이전트를 생성하여 위임합니다.**
 
-#### 3a. Stock Footage (Pexels)
-For each scene needing stock footage (as specified in the prompt sheet):
 ```
-Use Pexels searchVideos:
-- query: [descriptive keywords]
-- orientation: landscape
-- size: large
-```
-Download best matches to `public/footage/`.
+media-scout에게 전달:
 
-#### 3b. Analyze Existing Footage (TwelveLabs)
-If user has footage files:
-```
-Use TwelveLabs to:
-- Index the video(s)
-- Search for relevant scenes
-- Get timestamps for best clips
+"docs/06-prompt-sheet.md, docs/06-style-guide.md, docs/06-model-selection.md를 읽고
+config.yaml의 프로바이더 설정에 따라 다음 에셋을 병렬로 수집해줘:
+
+1. 스톡 영상: 프롬프트 시트에서 'stock' 지정된 장면 → Pexels 검색 → public/footage/
+2. AI 이미지: 프롬프트 시트에서 'image' 지정된 장면 → [image provider] 생성 → public/images/
+3. AI 영상 클립: 프롬프트 시트에서 'video' 지정된 장면 → [video provider] 생성 → public/footage/
+
+스토리보드(docs/05-storyboard.md) 참조하여 장면 순서와 용도를 파악할 것.
+수집 완료 후 에셋 경로 목록과 실패 항목을 보고해줘."
 ```
 
-#### 3c. Generate Images (if needed)
+**media-scout가 에셋을 수집하는 동안**, Phase 2b/2c의 음악·효과음이 아직 진행 중이면 함께 병렬로 대기합니다.
 
-Use the configured image provider. See `/generate-image` command for provider-specific workflows.
+모든 에셋 준비 완료 후 Phase 4로 진행.
 
-#### 3d. Generate Video Clips (if needed)
+---
 
-Use the configured video provider. See `/generate-clip` command for provider-specific workflows.
+## Phase 4: Remotion 컴포지션 작성 [순차 — 직접]
 
-### Phase 4: Build the Remotion Composition
+`docs/05-storyboard.md` 기반으로 Remotion 코드 작성:
 
-**Read the storyboard for scene structure:**
-```bash
-cat docs/05-storyboard.md
+1. **씬 컴포넌트** — `src/scenes/Scene01.tsx`, `Scene02.tsx`, ...
+2. **메인 컴포지션** — 씬 시퀀싱, `<Sequence>` 타이밍
+3. **오디오 레이어** — 나레이션 + 음악(더킹) + 효과음
+4. **컴포지션 등록** — `src/Root.tsx`에 duration 설정
+
+```tsx
+<Composition
+  id="MainVideo"
+  component={MainVideo}
+  durationInFrames={Math.ceil(voiceoverDuration * 30) + 60}
+  fps={30}
+  width={1920}
+  height={1080}
+/>
 ```
-Use the storyboard's shot timing, transitions, camera movements, and scene sequence to structure the Remotion composition. The storyboard is the source of truth for how scenes are arranged.
 
-Now write the React/TypeScript code:
+---
 
-1. **Create scene components** in `src/scenes/` — one per scene
-2. **Create the main composition** that sequences all scenes
-3. **Add audio layers** — voiceover, music (with fade in/out + ducking), SFX at correct frames
-4. **Register the composition** in `src/Root.tsx` with correct duration
+## Phase 5: 프리뷰 + 피드백 [순차 — 직접]
 
-Follow Remotion best practices:
-- Use `useCurrentFrame()` and `interpolate()` for animations
-- Use `<Sequence>` for scene timing
-- Use `<Audio>` with `staticFile()` for all audio
-- Use `<OffthreadVideo>` for video clips
-- Use `spring()` for natural motion
-
-### Phase 5: Preview & Iterate
-
-Start the dev server:
 ```bash
 npm run dev
 ```
 
-Tell the user to open http://localhost:3000 to preview.
+> "프리뷰를 확인해주세요 (http://localhost:3000). 수정이 필요한 부분이 있으면 말씀해주세요."
 
-Ask for feedback and make adjustments:
-- Timing changes
-- Visual tweaks
-- Audio volume adjustments
-- Text/copy changes
+피드백 반영 → 재프리뷰 반복.
 
-### Phase 6: Render
+---
 
-When the user is satisfied:
+## Phase 6: 렌더링 [순차 — 직접]
+
 ```bash
-npx remotion render [CompositionId] out/video.mp4
+npx remotion render MainVideo out/video.mp4 --codec h264 --crf 18
 ```
 
-Or with quality settings:
-```bash
-npx remotion render [CompositionId] out/video.mp4 --codec h264 --crf 18
+---
+
+## Phase 7: 포스트프로덕션 검증 [병렬 — post-producer 위임]
+
+**post-producer 서브에이전트를 생성하여 위임합니다.**
+
+```
+post-producer에게 전달:
+
+"out/video.mp4가 렌더링 완료되었습니다. 다음 3가지를 병렬로 검증해줘:
+
+1. AI 리뷰: 비주얼 품질, 페이싱, 오디오-비주얼 싱크, 플랫폼 적합성
+   참조: docs/03-treatment.md (비주얼 방향), docs/05-storyboard.md (의도한 구성)
+
+2. QC 기술 검증: ffprobe로 코덱/해상도/FPS/LUFS/파일크기/오디오코덱
+   기준: H.264, 1920x1080, 30fps, -14 LUFS (YouTube)
+
+3. 접근성: 자막 존재, 색상대비 4.5:1, 깜빡임 <3회/초, 오디오 밸런스
+
+종합 리포트(점수/판정/수정항목)를 보고해줘."
 ```
 
-## Guidelines
+---
 
-- **Keep visuals simple** — clean text, smooth transitions, not too many moving elements
-- **Iterate incrementally** — get basics working, then add polish
-- **Test audio sync** — preview after adding each audio layer
-- **Use consistent styling** — pick a color palette and font family, stick with them
-- **Organize files** — `public/audio/`, `public/footage/`, `public/images/`, `src/scenes/`
+## Phase 8: 수정 루프 [순차 — 직접]
+
+post-producer 리포트 기반:
+
+- **APPROVED (8+/10)**: 완료 → `/progress` 갱신
+- **NEEDS REVISION**: CRITICAL/MAJOR 이슈 수정 → Phase 6(재렌더링) → Phase 7(재검증)
+
+수정 루프는 APPROVED 될 때까지 반복합니다.
+
+---
+
+## 완료 시
+
+> "영상 제작이 완료되었습니다.
+> 📁 out/video.mp4
+> 📊 진행 상황: 필수 [n/16] 완료 | 다음: /[커맨드명]"
+
+`docs/00-progress.md` 자동 갱신 (`rules/progress-tracking.md` 적용).
